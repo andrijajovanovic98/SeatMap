@@ -1,0 +1,302 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="860" viewBox="0 0 1500 860" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000000" flood-opacity="0.12"/>
+    </filter>
+
+    <!-- Reusable mini glyphs matching the real app's Lucide icons -->
+    <g id="iconWheatOff">
+      <path d="M-4 5 L1 0 M-2 3 L-4.5 3 M-2 3 L-2 0.5 M0 1 L-2.5 1 M0 1 L0 -1.5 M2 -1 L-0.5 -1 M2 -1 L2 -3.5" fill="none" stroke="#b45309" stroke-width="1.1" stroke-linecap="round"/>
+      <line x1="-5" y1="-5" x2="5" y2="5" stroke="#b45309" stroke-width="1.3" stroke-linecap="round"/>
+    </g>
+    <g id="iconMilkOff">
+      <path d="M-2.5 -4.5 L-2.5 -2 L-3.8 0 L-3.8 5 L3.8 5 L3.8 0 L2.5 -2 L2.5 -4.5 Z" fill="none" stroke="#0369a1" stroke-width="1.1" stroke-linejoin="round"/>
+      <line x1="-5" y1="-5" x2="5" y2="5" stroke="#0369a1" stroke-width="1.3" stroke-linecap="round"/>
+    </g>
+    <g id="iconBaby">
+      <circle cx="0" cy="-1" r="3.6" fill="none" stroke="#0284c7" stroke-width="1.1"/>
+      <path d="M-1.8 -1.2 Q0 1 1.8 -1.2" fill="none" stroke="#0284c7" stroke-width="1" stroke-linecap="round"/>
+      <path d="M-3.4 3.5 Q0 6.4 3.4 3.5" fill="none" stroke="#0284c7" stroke-width="1.1" stroke-linecap="round"/>
+    </g>
+    <g id="iconArmchair">
+      <path d="M-3.6 -1 L-3.6 2.2 L3.6 2.2 L3.6 -1" fill="none" stroke="#b45309" stroke-width="1.1" stroke-linejoin="round"/>
+      <path d="M-3.6 2.2 L-3.6 4.4 M3.6 2.2 L3.6 4.4" stroke="#b45309" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M-3.6 -1 Q-3.6 -3 -1.8 -3 L1.8 -3 Q3.6 -3 3.6 -1" fill="none" stroke="#b45309" stroke-width="1.1"/>
+    </g>
+  </defs>
+
+  <!-- App background -->
+  <rect x="0" y="0" width="1500" height="860" fill="#f3f4f6"/>
+
+  <!-- Header -->
+  <rect x="0" y="0" width="1500" height="64" fill="#ffffff"/>
+  <rect x="0" y="63" width="1500" height="1" fill="#e5e7eb"/>
+
+  <!-- Logo -->
+  <rect x="24" y="20" width="24" height="24" rx="6" fill="#4f46e5"/>
+  <text x="58" y="38" font-size="20" font-weight="700" fill="#4f46e5">SeatFlow</text>
+
+  <!-- Event name field -->
+  <rect x="200" y="18" width="260" height="28" rx="6" fill="#f9fafb" stroke="#e5e7eb"/>
+  <text x="214" y="37" font-size="13" fill="#374151">Anna &amp; Tom&#8217;s Wedding</text>
+
+  <!-- Stats -->
+  <text x="500" y="37" font-size="12" fill="#111827" font-weight="600">64<tspan fill="#6b7280" font-weight="400"> guests</tspan></text>
+  <text x="580" y="37" font-size="12" fill="#059669" font-weight="600">52<tspan fill="#059669" font-weight="400"> seated</tspan></text>
+  <text x="650" y="37" font-size="12" fill="#d97706" font-weight="600">12<tspan fill="#d97706" font-weight="400"> unseated</tspan></text>
+
+  <!-- Save indicator -->
+  <circle cx="760" cy="32" r="5" fill="#10b981"/>
+  <text x="772" y="37" font-size="12" fill="#059669">All changes saved</text>
+
+  <!-- Language toggle -->
+  <rect x="1000" y="18" width="72" height="26" rx="6" fill="#f3f4f6" stroke="#e5e7eb"/>
+  <rect x="1002" y="20" width="34" height="22" rx="5" fill="#4f46e5"/>
+  <text x="1010" y="35" font-size="11" font-weight="700" fill="#ffffff">EN</text>
+  <text x="1046" y="35" font-size="11" font-weight="700" fill="#6b7280">HU</text>
+
+  <!-- Header buttons -->
+  <rect x="1084" y="18" width="72" height="28" rx="6" fill="#f9fafb" stroke="#e5e7eb"/>
+  <text x="1096" y="37" font-size="12" fill="#374151">New plan</text>
+
+  <rect x="1164" y="18" width="88" height="28" rx="6" fill="#f9fafb" stroke="#e5e7eb"/>
+  <text x="1176" y="37" font-size="12" fill="#374151">Export/Import</text>
+
+  <rect x="1260" y="18" width="60" height="28" rx="6" fill="#4f46e5"/>
+  <text x="1274" y="37" font-size="12" fill="#ffffff" font-weight="600">Save</text>
+
+  <rect x="1330" y="18" width="34" height="28" rx="6" fill="#f9fafb" stroke="#e5e7eb"/>
+  <circle cx="1347" cy="32" r="3.5" fill="#f59e0b"/>
+  <text x="1338" y="37" font-size="13" fill="#6b7280">&#128172;</text>
+
+  <rect x="1374" y="18" width="34" height="28" rx="6" fill="#f9fafb" stroke="#e5e7eb"/>
+  <text x="1382" y="37" font-size="13" fill="#6b7280">&#128438;</text>
+
+  <!-- Left toolbar -->
+  <rect x="0" y="64" width="200" height="796" fill="#ffffff"/>
+  <rect x="199" y="64" width="1" height="796" fill="#e5e7eb"/>
+  <text x="24" y="98" font-size="11" font-weight="700" fill="#9ca3af" letter-spacing="1">ELEMENTS</text>
+
+  <g font-size="13" fill="#374151">
+    <rect x="16" y="112" width="168" height="36" rx="8" fill="#eef2ff"/>
+    <circle cx="34" cy="130" r="8" fill="none" stroke="#4f46e5" stroke-width="2"/>
+    <text x="52" y="135" fill="#4338ca" font-weight="600">Round table</text>
+
+    <rect x="16" y="156" width="168" height="36" rx="8" fill="#ffffff"/>
+    <rect x="26" y="166" width="16" height="16" rx="2" fill="none" stroke="#6b7280" stroke-width="2"/>
+    <text x="52" y="179" fill="#374151">Rectangular table</text>
+
+    <rect x="16" y="200" width="168" height="36" rx="8" fill="#ffffff"/>
+    <rect x="24" y="212" width="20" height="12" rx="2" fill="none" stroke="#6b7280" stroke-width="2"/>
+    <text x="52" y="223" fill="#374151">Long table</text>
+
+    <rect x="16" y="244" width="168" height="36" rx="8" fill="#ffffff"/>
+    <path d="M26 254 l6 12 h12 l6 -12" fill="none" stroke="#6b7280" stroke-width="2"/>
+    <text x="52" y="267" fill="#374151">Dance floor</text>
+
+    <rect x="16" y="288" width="168" height="36" rx="8" fill="#ffffff"/>
+    <rect x="26" y="298" width="18" height="12" rx="2" fill="none" stroke="#6b7280" stroke-width="2"/>
+    <text x="52" y="311" fill="#374151">Stage</text>
+
+    <rect x="16" y="332" width="168" height="36" rx="8" fill="#ffffff"/>
+    <rect x="28" y="342" width="14" height="12" rx="2" fill="none" stroke="#6b7280" stroke-width="2"/>
+    <text x="52" y="355" fill="#374151">Bar</text>
+
+    <rect x="16" y="376" width="168" height="36" rx="8" fill="#ffffff"/>
+    <path d="M26 386 v12 h16 v-12" fill="none" stroke="#6b7280" stroke-width="2"/>
+    <text x="52" y="399" fill="#374151">Entrance</text>
+  </g>
+
+  <text x="24" y="440" font-size="10.5" fill="#9ca3af">Click an element to place it, or</text>
+  <text x="24" y="454" font-size="10.5" fill="#9ca3af">drag it onto the floor.</text>
+
+  <!-- Center canvas -->
+  <rect x="200" y="64" width="900" height="796" fill="#f3f4f6"/>
+  <rect x="240" y="112" width="820" height="700" rx="16" fill="#ffffff" stroke="#e5e7eb" filter="url(#softShadow)"/>
+
+  <!-- Dance floor + stage -->
+  <rect x="790" y="640" width="150" height="120" rx="8" fill="#a1a1aa" opacity="0.45" stroke="#9ca3af" stroke-dasharray="4 3"/>
+  <text x="822" y="705" font-size="12" fill="#ffffff" font-weight="600">Dance floor</text>
+  <rect x="950" y="650" width="90" height="80" rx="8" fill="#a1a1aa" opacity="0.45" stroke="#9ca3af" stroke-dasharray="4 3"/>
+  <text x="968" y="695" font-size="12" fill="#ffffff" font-weight="600">Stage</text>
+  <rect x="264" y="650" width="70" height="50" rx="8" fill="#a1a1aa" opacity="0.45" stroke="#9ca3af" stroke-dasharray="4 3"/>
+  <text x="272" y="680" font-size="11" fill="#ffffff" font-weight="600">Entrance</text>
+
+  <!-- Round table 1 (selected) with seats -->
+  <g>
+    <circle cx="400" cy="230" r="55" fill="#6366f1" opacity="0.9" stroke="#4338ca" stroke-width="3"/>
+    <circle cx="400" cy="230" r="62" fill="none" stroke="#818cf8" stroke-width="2" stroke-dasharray="3 3"/>
+    <text x="400" y="235" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">Table 1</text>
+
+    <g font-size="9" font-weight="700" text-anchor="middle">
+      <circle cx="400" cy="152" r="18" fill="#10b981" stroke="#047857" stroke-width="2"/>
+      <text x="400" y="156" fill="#ffffff">AK</text>
+
+      <circle cx="455" cy="182" r="18" fill="#10b981" stroke="#047857" stroke-width="2"/>
+      <text x="455" y="186" fill="#ffffff">TS</text>
+      <!-- dietary dots: gluten (amber) + lactose (orange) -->
+      <circle cx="450" cy="197" r="4" fill="#fde047" stroke="#ffffff" stroke-width="0.8"/>
+      <circle cx="460" cy="197" r="4" fill="#f97316" stroke="#ffffff" stroke-width="0.8"/>
+
+      <circle cx="475" cy="245" r="18" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/>
+      <text x="475" y="249" fill="#6b7280">3</text>
+
+      <circle cx="445" cy="298" r="18" fill="#10b981" stroke="#047857" stroke-width="2"/>
+      <text x="445" y="302" fill="#ffffff">MR</text>
+
+      <circle cx="355" cy="298" r="18" fill="#10b981" stroke="#047857" stroke-width="2"/>
+      <text x="355" y="302" fill="#ffffff">JD</text>
+      <!-- child-age badge (top-right) + high-chair badge (top-left) -->
+      <circle cx="366" cy="287" r="7.5" fill="#ffffff" stroke="#d1d5db"/>
+      <use href="#iconBaby" x="366" y="287" transform="scale(1.15)" transform-origin="366 287"/>
+      <circle cx="344" cy="287" r="7.5" fill="#ffffff" stroke="#d1d5db"/>
+      <use href="#iconArmchair" x="344" y="287" transform="scale(1.15)" transform-origin="344 287"/>
+
+      <circle cx="325" cy="245" r="18" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/>
+      <text x="325" y="249" fill="#6b7280">6</text>
+
+      <circle cx="345" cy="182" r="18" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/>
+      <text x="345" y="186" fill="#6b7280">7</text>
+    </g>
+  </g>
+
+  <!-- Round table 2 -->
+  <g>
+    <circle cx="600" cy="230" r="55" fill="#6366f1" opacity="0.85" stroke="#4f46e5" stroke-width="2"/>
+    <text x="600" y="235" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">Table 2</text>
+    <g font-size="9" font-weight="700" text-anchor="middle">
+      <circle cx="600" cy="152" r="18" fill="#10b981" stroke="#047857" stroke-width="2"/><text x="600" y="156" fill="#ffffff">LP</text>
+      <circle cx="655" cy="182" r="18" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/><text x="655" y="186" fill="#6b7280">2</text>
+      <circle cx="675" cy="245" r="18" fill="#10b981" stroke="#047857" stroke-width="2"/><text x="675" y="249" fill="#ffffff">NK</text>
+      <circle cx="645" cy="298" r="18" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/><text x="645" y="302" fill="#6b7280">5</text>
+      <circle cx="555" cy="298" r="18" fill="#10b981" stroke="#047857" stroke-width="2"/><text x="555" y="302" fill="#ffffff">OV</text>
+      <circle cx="525" cy="245" r="18" fill="#10b981" stroke="#047857" stroke-width="2"/><text x="525" y="249" fill="#ffffff">RS</text>
+      <circle cx="545" cy="182" r="18" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/><text x="545" y="186" fill="#6b7280">8</text>
+    </g>
+  </g>
+
+  <!-- Long table -->
+  <g>
+    <rect x="310" y="440" width="260" height="70" rx="10" fill="#6366f1" opacity="0.85" stroke="#4f46e5" stroke-width="2"/>
+    <text x="440" y="480" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">Long table (12)</text>
+    <g font-size="9" font-weight="700" text-anchor="middle">
+      <circle cx="330" cy="416" r="16" fill="#10b981" stroke="#047857" stroke-width="2"/><text x="330" y="420" fill="#ffffff">HB</text>
+      <circle cx="372" cy="416" r="16" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/><text x="372" y="420" fill="#6b7280">2</text>
+      <circle cx="414" cy="416" r="16" fill="#10b981" stroke="#047857" stroke-width="2"/><text x="414" y="420" fill="#ffffff">GS</text>
+      <circle cx="456" cy="416" r="16" fill="#10b981" stroke="#047857" stroke-width="2"/><text x="456" y="420" fill="#ffffff">FQ</text>
+      <circle cx="498" cy="416" r="16" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/><text x="498" y="420" fill="#6b7280">5</text>
+      <circle cx="540" cy="416" r="16" fill="#10b981" stroke="#047857" stroke-width="2"/><text x="540" y="420" fill="#ffffff">PL</text>
+
+      <circle cx="330" cy="534" r="16" fill="#10b981" stroke="#047857" stroke-width="2"/><text x="330" y="538" fill="#ffffff">WK</text>
+      <circle cx="372" cy="534" r="16" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/><text x="372" y="538" fill="#6b7280">8</text>
+      <circle cx="414" cy="534" r="16" fill="#10b981" stroke="#047857" stroke-width="2"/><text x="414" y="538" fill="#ffffff">YT</text>
+      <circle cx="456" cy="534" r="16" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/><text x="456" y="538" fill="#6b7280">10</text>
+      <circle cx="498" cy="534" r="16" fill="#10b981" stroke="#047857" stroke-width="2"/><text x="498" y="538" fill="#ffffff">CM</text>
+      <circle cx="540" cy="534" r="16" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/><text x="540" y="538" fill="#6b7280">12</text>
+    </g>
+  </g>
+
+  <!-- Table hover tooltip -->
+  <g filter="url(#softShadow)">
+    <rect x="668" y="352" width="204" height="146" rx="10" fill="#111827"/>
+    <text x="684" y="376" font-size="11" font-weight="700" fill="#ffffff">Table 1</text>
+    <line x1="684" y1="384" x2="856" y2="384" stroke="#374151" stroke-width="1"/>
+
+    <text x="684" y="402" font-size="10" fill="#e5e7eb">Anna Kelly</text>
+
+    <text x="684" y="420" font-size="10" fill="#e5e7eb">Tom Sanders</text>
+    <use href="#iconWheatOff" x="812" y="417" transform="scale(1.1)" transform-origin="812 417"/>
+    <use href="#iconMilkOff" x="832" y="417" transform="scale(1.1)" transform-origin="832 417"/>
+
+    <text x="684" y="438" font-size="10" fill="#e5e7eb">Maria Rossi</text>
+
+    <text x="684" y="456" font-size="10" fill="#e5e7eb">John Doe</text>
+    <use href="#iconBaby" x="812" y="453" transform="scale(1.1)" transform-origin="812 453"/>
+    <use href="#iconArmchair" x="832" y="453" transform="scale(1.1)" transform-origin="832 453"/>
+
+    <use href="#iconWheatOff" x="686" y="481" transform="scale(1.05)" transform-origin="686 481"/>
+    <text x="694" y="484" font-size="8" fill="#9ca3af">gluten</text>
+    <use href="#iconMilkOff" x="736" y="481" transform="scale(1.05)" transform-origin="736 481"/>
+    <text x="744" y="484" font-size="8" fill="#9ca3af">lactose</text>
+    <use href="#iconBaby" x="790" y="481" transform="scale(1.05)" transform-origin="790 481"/>
+    <text x="798" y="484" font-size="8" fill="#9ca3af">child</text>
+    <use href="#iconArmchair" x="832" y="481" transform="scale(1.05)" transform-origin="832 481"/>
+    <text x="840" y="484" font-size="8" fill="#9ca3af">high chair</text>
+  </g>
+
+  <!-- Zoom controls -->
+  <g filter="url(#softShadow)">
+    <rect x="1000" y="760" width="150" height="36" rx="10" fill="#ffffff" stroke="#e5e7eb"/>
+    <text x="1014" y="783" font-size="14" fill="#6b7280">&#8722;</text>
+    <text x="1064" y="783" font-size="11" fill="#374151">100%</text>
+    <text x="1116" y="783" font-size="14" fill="#6b7280">+</text>
+  </g>
+
+  <!-- Right properties panel -->
+  <rect x="1100" y="64" width="220" height="796" fill="#ffffff"/>
+  <rect x="1099" y="64" width="1" height="796" fill="#e5e7eb"/>
+  <text x="1124" y="98" font-size="11" font-weight="700" fill="#9ca3af" letter-spacing="1">PROPERTIES</text>
+
+  <g font-size="11" fill="#6b7280">
+    <text x="1124" y="128">Table name</text>
+    <rect x="1124" y="136" width="176" height="26" rx="6" fill="#ffffff" stroke="#d1d5db"/>
+    <text x="1134" y="153" font-size="12" fill="#374151">Table 1</text>
+
+    <text x="1124" y="184">Table type</text>
+    <rect x="1124" y="192" width="176" height="26" rx="6" fill="#ffffff" stroke="#d1d5db"/>
+    <text x="1134" y="209" font-size="12" fill="#374151">Round table</text>
+
+    <text x="1124" y="240">Number of seats</text>
+    <rect x="1124" y="248" width="176" height="26" rx="6" fill="#ffffff" stroke="#d1d5db"/>
+    <text x="1134" y="265" font-size="12" fill="#374151">8</text>
+
+    <text x="1124" y="296">Rotation (0°)</text>
+    <rect x="1124" y="306" width="176" height="4" rx="2" fill="#e5e7eb"/>
+    <circle cx="1212" cy="308" r="7" fill="#4f46e5"/>
+
+    <text x="1124" y="344">Table color</text>
+    <circle cx="1134" cy="360" r="9" fill="#6366f1" stroke="#111827" stroke-width="1.5"/>
+    <circle cx="1158" cy="360" r="9" fill="#10b981"/>
+    <circle cx="1182" cy="360" r="9" fill="#f59e0b"/>
+    <circle cx="1206" cy="360" r="9" fill="#ef4444"/>
+    <circle cx="1230" cy="360" r="9" fill="#0ea5e9"/>
+    <circle cx="1254" cy="360" r="9" fill="#8b5cf6"/>
+  </g>
+
+  <rect x="1124" y="770" width="82" height="30" rx="8" fill="#ffffff" stroke="#d1d5db"/>
+  <text x="1142" y="790" font-size="11" fill="#374151">Duplicate</text>
+  <rect x="1216" y="770" width="82" height="30" rx="8" fill="#fef2f2" stroke="#fecaca"/>
+  <text x="1238" y="790" font-size="11" fill="#dc2626">Delete</text>
+
+  <!-- Guest list panel -->
+  <rect x="1320" y="64" width="180" height="796" fill="#ffffff"/>
+  <rect x="1319" y="64" width="1" height="796" fill="#e5e7eb"/>
+  <text x="1344" y="98" font-size="11" font-weight="700" fill="#9ca3af" letter-spacing="1">GUEST LIST</text>
+  <rect x="1424" y="86" width="56" height="24" rx="6" fill="#eef2ff"/>
+  <text x="1434" y="102" font-size="10" fill="#4338ca" font-weight="600">+ Guest</text>
+
+  <text x="1344" y="132" font-size="10" font-weight="700" fill="#9ca3af">NOT YET SEATED (12)</text>
+  <g font-size="11" fill="#374151">
+    <rect x="1336" y="142" width="148" height="34" rx="8" fill="#ffffff" stroke="#f3f4f6"/>
+    <text x="1348" y="163" font-size="11" fill="#1f2937">Grace Lin</text>
+    <rect x="1336" y="182" width="148" height="34" rx="8" fill="#ffffff" stroke="#f3f4f6"/>
+    <text x="1348" y="203" font-size="11" fill="#1f2937">Marcus Webb</text>
+    <rect x="1336" y="222" width="148" height="34" rx="8" fill="#ffffff" stroke="#f3f4f6"/>
+    <text x="1348" y="243" font-size="11" fill="#1f2937">Elena Petrov</text>
+  </g>
+
+  <text x="1344" y="284" font-size="10" font-weight="700" fill="#9ca3af">SEATED (52)</text>
+  <g font-size="11" fill="#374151">
+    <rect x="1336" y="294" width="148" height="40" rx="8" fill="#ffffff" stroke="#f3f4f6"/>
+    <text x="1348" y="311" font-size="11" fill="#1f2937">Anna Kelly</text>
+    <text x="1348" y="325" font-size="9.5" fill="#059669">Table 1 &#183; Seat 1</text>
+
+    <rect x="1336" y="340" width="148" height="40" rx="8" fill="#ffffff" stroke="#f3f4f6"/>
+    <text x="1348" y="357" font-size="11" fill="#1f2937">Tom Sanders</text>
+    <text x="1348" y="371" font-size="9.5" fill="#059669">Table 1 &#183; Seat 2</text>
+
+    <rect x="1336" y="386" width="148" height="40" rx="8" fill="#ffffff" stroke="#f3f4f6"/>
+    <text x="1348" y="403" font-size="11" fill="#1f2937">Maria Rossi</text>
+    <text x="1348" y="417" font-size="9.5" fill="#059669">Table 1 &#183; Seat 5</text>
+  </g>
+</svg>

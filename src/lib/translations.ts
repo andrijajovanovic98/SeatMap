@@ -1,0 +1,318 @@
+export type Language = "hu" | "en";
+
+export type TranslationParams = Record<string, string | number>;
+
+const dict = {
+  hu: {
+    "app.name": "SeatFlow",
+    "app.eventNameAriaLabel": "Esemény neve",
+
+    "header.openToolbarAria": "Eszköztár megnyitása",
+    "header.guests": "Vendégek",
+    "header.newPlan": "Új terv",
+    "header.exportImport": "Export/Import",
+    "header.print": "Nyomtatás",
+    "header.save": "Mentés",
+    "header.newPlan.title": "Új terv létrehozása",
+    "header.newPlan.message":
+      "Biztosan új tervet szeretnél létrehozni? A jelenlegi terv törlődni fog.",
+    "header.newPlan.confirm": "Törlés és új terv",
+    "header.language": "Nyelv",
+
+    "sidebar.elements": "Elemek",
+    "sidebar.instructions": "Kattints egy elemre a terem közepére helyezéshez, vagy húzd a vászonra.",
+
+    "table.circle": "Körasztal",
+    "table.rectangle": "Téglalap asztal",
+    "table.long": "Hosszú asztal",
+    "floor.danceFloor": "Tánctér",
+    "floor.stage": "Színpad",
+    "floor.bar": "Bár",
+    "floor.entrance": "Bejárat",
+    "floor.text": "Szöveg",
+    "floor.textLabel": "Szöveges címke",
+
+    "childAge.under3": "3 év alatti gyermek",
+    "childAge.age3to12": "3–12 éves gyermek",
+    "childAge.under3.short": "3 év alatt",
+    "childAge.age3to12.short": "3–12 éves",
+    "childAge.none": "Nincs",
+
+    "canvas.zoomOutAria": "Kicsinyítés",
+    "canvas.zoomResetAria": "Nagyítás visszaállítása",
+    "canvas.zoomInAria": "Nagyítás",
+    "canvas.fitAria": "Teljes terem",
+    "canvas.swapGuest.title": "Vendég lecserélése",
+    "canvas.swapGuest.message": "Szeretnéd lecserélni a jelenlegi vendéget?",
+    "canvas.swapGuest.confirm": "Csere",
+
+    "seat.emptyLabel": "{table} · {seatNumber}. hely (üres)",
+    "seat.label": "{table} · {seatNumber}. hely",
+    "seat.glutenFree": "Glutén érzékeny",
+    "seat.lactoseFree": "Laktóz érzékeny",
+    "seat.otherAllergy": "Egyéb allergia",
+    "seat.highChair": "Etetőszéket kérnek",
+
+    "properties.emptyState": "Válassz ki egy elemet a teremben a szerkesztéshez.",
+    "properties.heading": "Tulajdonságok",
+    "properties.tableName": "Asztal neve",
+    "properties.tableType": "Asztal típusa",
+    "properties.seatCount": "Ülőhelyek száma",
+    "properties.width": "Szélesség",
+    "properties.height": "Magasság",
+    "properties.rotation": "Forgatás ({degrees}°)",
+    "properties.tableColor": "Asztal színe",
+    "properties.elementName": "Elem neve",
+    "properties.color": "Szín",
+    "properties.duplicate": "Másolás",
+    "properties.delete": "Törlés",
+    "properties.capacityWarning.title": "Vendégek eltávolítása ülőhelyről",
+    "properties.capacityWarning.message":
+      "A csökkentett ülőhelyszám miatt egy vagy több vendég elveszíti a helyét, és visszakerül az elhelyezetlen vendégek közé. Folytatod?",
+    "properties.capacityWarning.confirm": "Igen, folytatás",
+
+    "guestList.heading": "Vendéglista",
+    "guestList.addButton": "Vendég",
+    "guestList.unassigned": "Még nincs elhelyezve ({count})",
+    "guestList.assigned": "Elhelyezve ({count})",
+    "guestList.empty": "Még nincs vendég a listában.",
+    "guestList.emptyGroup": "Nincs vendég ebben a csoportban.",
+    "guestList.deleteGuest.title": "Vendég törlése",
+    "guestList.deleteGuest.message":
+      "Biztosan törlöd {name}? Az ülőhelye újra szabaddá válik.",
+    "guestList.deleteGuest.fallbackName": "a vendéget",
+    "guestList.deleteGuest.confirm": "Törlés",
+    "guestList.editAria": "Szerkesztés",
+    "guestList.deleteAria": "Törlés",
+
+    "guestDialog.editHeading": "Vendég szerkesztése",
+    "guestDialog.addHeading": "Új vendég",
+    "guestDialog.nameLabel": "Vendég neve",
+    "guestDialog.namePlaceholder": "pl. Kovács Anna",
+    "guestDialog.noteLabelOptional": "Megjegyzés (opcionális)",
+    "guestDialog.cancel": "Mégse",
+    "guestDialog.save": "Mentés",
+
+    "seatDialog.nameLabel": "Vendég neve",
+    "seatDialog.namePlaceholder": "pl. Kovács Anna",
+    "seatDialog.noteLabel": "Megjegyzés",
+    "seatDialog.notePlaceholder": "pl. vega étrend",
+    "seatDialog.remove": "Eltávolítás",
+    "seatDialog.cancel": "Mégse",
+    "seatDialog.save": "Mentés",
+
+    "guestAttrs.dietaryHeading": "Étkezési igények",
+    "guestAttrs.glutenFree": "Glutén érzékeny",
+    "guestAttrs.lactoseFree": "Laktóz érzékeny",
+    "guestAttrs.otherAllergy": "Egyéb allergia",
+    "guestAttrs.childHeading": "Gyermek",
+    "guestAttrs.highChair": "Etetőszéket kérnek",
+
+    "stats.guests": "vendég",
+    "stats.seated": "elhelyezve",
+    "stats.unseated": "nincs elhelyezve",
+    "stats.seats": "ülőhely",
+    "stats.freeSeats": "szabad hely",
+
+    "save.saving": "Mentés…",
+    "save.saved": "Minden módosítás mentve",
+
+    "exportImport.filenameFallback": "seatflow-terv",
+    "exportImport.invalidFile":
+      "A fájl szerkezete nem érvényes SeatFlow terv. Kérjük, egy korábban exportált JSON fájlt válassz.",
+    "exportImport.unreadableFile":
+      "A fájl nem olvasható be. Győződj meg róla, hogy érvényes JSON fájlt választottál.",
+    "exportImport.heading": "Exportálás / Importálás",
+    "exportImport.exportButton": "Terv exportálása JSON fájlba",
+    "exportImport.importButton": "Terv importálása JSON fájlból",
+    "exportImport.warning":
+      "Az importálás felülírja a jelenlegi tervet. Érdemes előtte exportálni a jelenlegi állapotot.",
+
+    "print.subtitle": "Teremrajz és ülésrend",
+    "print.tableHeader": "Asztal",
+    "print.seatHeader": "Hely",
+    "print.guestHeader": "Vendég",
+    "print.flag.gluten": "G",
+    "print.flag.lactose": "L",
+    "print.flag.allergy": "A",
+    "print.flag.under3": "gyerek <3",
+    "print.flag.age3to12": "gyerek 3-12",
+    "print.flag.highChair": "etetőszék",
+    "print.emptySeat": "—",
+
+    "confirm.defaultConfirm": "Megerősítés",
+    "confirm.defaultCancel": "Mégse",
+
+    "app.closeToolbarAria": "Eszköztár becsukása",
+    "app.openPanelsAria": "Panelek megnyitása",
+    "app.closePanelsAria": "Panelek becsukása",
+
+    "comments.heading": "Kommentek",
+    "comments.placeholder": "Írd le, mit szeretnél megváltoztatni…",
+    "comments.add": "Hozzáadás",
+    "comments.empty": "Még nincs egyetlen komment sem.",
+    "comments.markSeenAria": "Megjelölés látottként",
+    "comments.deleteAria": "Törlés",
+  },
+  en: {
+    "app.name": "SeatFlow",
+    "app.eventNameAriaLabel": "Event name",
+
+    "header.openToolbarAria": "Open toolbar",
+    "header.guests": "Guests",
+    "header.newPlan": "New plan",
+    "header.exportImport": "Export/Import",
+    "header.print": "Print",
+    "header.save": "Save",
+    "header.newPlan.title": "Create new plan",
+    "header.newPlan.message":
+      "Are you sure you want to create a new plan? The current plan will be deleted.",
+    "header.newPlan.confirm": "Delete and create new",
+    "header.language": "Language",
+
+    "sidebar.elements": "Elements",
+    "sidebar.instructions": "Click an element to place it in the center of the room, or drag it onto the canvas.",
+
+    "table.circle": "Round table",
+    "table.rectangle": "Rectangular table",
+    "table.long": "Long table",
+    "floor.danceFloor": "Dance floor",
+    "floor.stage": "Stage",
+    "floor.bar": "Bar",
+    "floor.entrance": "Entrance",
+    "floor.text": "Text",
+    "floor.textLabel": "Text label",
+
+    "childAge.under3": "Child under 3",
+    "childAge.age3to12": "Child 3–12",
+    "childAge.under3.short": "Under 3",
+    "childAge.age3to12.short": "3–12 years",
+    "childAge.none": "None",
+
+    "canvas.zoomOutAria": "Zoom out",
+    "canvas.zoomResetAria": "Reset zoom",
+    "canvas.zoomInAria": "Zoom in",
+    "canvas.fitAria": "Fit to screen",
+    "canvas.swapGuest.title": "Replace guest",
+    "canvas.swapGuest.message": "Do you want to replace the current guest?",
+    "canvas.swapGuest.confirm": "Replace",
+
+    "seat.emptyLabel": "{table} · Seat {seatNumber} (empty)",
+    "seat.label": "{table} · Seat {seatNumber}",
+    "seat.glutenFree": "Gluten sensitive",
+    "seat.lactoseFree": "Lactose sensitive",
+    "seat.otherAllergy": "Other allergy",
+    "seat.highChair": "High chair requested",
+
+    "properties.emptyState": "Select an element in the room to edit it.",
+    "properties.heading": "Properties",
+    "properties.tableName": "Table name",
+    "properties.tableType": "Table type",
+    "properties.seatCount": "Number of seats",
+    "properties.width": "Width",
+    "properties.height": "Height",
+    "properties.rotation": "Rotation ({degrees}°)",
+    "properties.tableColor": "Table color",
+    "properties.elementName": "Element name",
+    "properties.color": "Color",
+    "properties.duplicate": "Duplicate",
+    "properties.delete": "Delete",
+    "properties.capacityWarning.title": "Remove guests from seats",
+    "properties.capacityWarning.message":
+      "Reducing the number of seats will remove one or more seated guests, returning them to the unassigned list. Continue?",
+    "properties.capacityWarning.confirm": "Yes, continue",
+
+    "guestList.heading": "Guest list",
+    "guestList.addButton": "Guest",
+    "guestList.unassigned": "Not yet seated ({count})",
+    "guestList.assigned": "Seated ({count})",
+    "guestList.empty": "No guests in the list yet.",
+    "guestList.emptyGroup": "No guests in this group.",
+    "guestList.deleteGuest.title": "Delete guest",
+    "guestList.deleteGuest.message":
+      "Are you sure you want to delete {name}? Their seat will become free again.",
+    "guestList.deleteGuest.fallbackName": "the guest",
+    "guestList.deleteGuest.confirm": "Delete",
+    "guestList.editAria": "Edit",
+    "guestList.deleteAria": "Delete",
+
+    "guestDialog.editHeading": "Edit guest",
+    "guestDialog.addHeading": "New guest",
+    "guestDialog.nameLabel": "Guest name",
+    "guestDialog.namePlaceholder": "e.g. Anna Smith",
+    "guestDialog.noteLabelOptional": "Note (optional)",
+    "guestDialog.cancel": "Cancel",
+    "guestDialog.save": "Save",
+
+    "seatDialog.nameLabel": "Guest name",
+    "seatDialog.namePlaceholder": "e.g. Anna Smith",
+    "seatDialog.noteLabel": "Note",
+    "seatDialog.notePlaceholder": "e.g. vegetarian diet",
+    "seatDialog.remove": "Remove",
+    "seatDialog.cancel": "Cancel",
+    "seatDialog.save": "Save",
+
+    "guestAttrs.dietaryHeading": "Dietary requirements",
+    "guestAttrs.glutenFree": "Gluten sensitive",
+    "guestAttrs.lactoseFree": "Lactose sensitive",
+    "guestAttrs.otherAllergy": "Other allergy",
+    "guestAttrs.childHeading": "Child",
+    "guestAttrs.highChair": "High chair requested",
+
+    "stats.guests": "guests",
+    "stats.seated": "seated",
+    "stats.unseated": "not seated",
+    "stats.seats": "seats",
+    "stats.freeSeats": "free seats",
+
+    "save.saving": "Saving…",
+    "save.saved": "All changes saved",
+
+    "exportImport.filenameFallback": "seatflow-plan",
+    "exportImport.invalidFile":
+      "The file structure is not a valid SeatFlow plan. Please choose a previously exported JSON file.",
+    "exportImport.unreadableFile":
+      "The file could not be read. Make sure you selected a valid JSON file.",
+    "exportImport.heading": "Export / Import",
+    "exportImport.exportButton": "Export plan to JSON file",
+    "exportImport.importButton": "Import plan from JSON file",
+    "exportImport.warning":
+      "Importing will overwrite the current plan. Consider exporting the current state first.",
+
+    "print.subtitle": "Floor plan and seating chart",
+    "print.tableHeader": "Table",
+    "print.seatHeader": "Seat",
+    "print.guestHeader": "Guest",
+    "print.flag.gluten": "G",
+    "print.flag.lactose": "L",
+    "print.flag.allergy": "A",
+    "print.flag.under3": "child <3",
+    "print.flag.age3to12": "child 3-12",
+    "print.flag.highChair": "high chair",
+    "print.emptySeat": "—",
+
+    "confirm.defaultConfirm": "Confirm",
+    "confirm.defaultCancel": "Cancel",
+
+    "app.closeToolbarAria": "Close toolbar",
+    "app.openPanelsAria": "Open panels",
+    "app.closePanelsAria": "Close panels",
+
+    "comments.heading": "Comments",
+    "comments.placeholder": "Describe what you'd like to change…",
+    "comments.add": "Add",
+    "comments.empty": "No comments yet.",
+    "comments.markSeenAria": "Mark as seen",
+    "comments.deleteAria": "Delete",
+  },
+} as const;
+
+export type TranslationKey = keyof (typeof dict)["hu"];
+
+export function translate(language: Language, key: TranslationKey, params?: TranslationParams): string {
+  const template = dict[language][key] ?? dict.hu[key] ?? key;
+  if (!params) return template;
+  return template.replace(/\{(\w+)\}/g, (match, paramName) =>
+    paramName in params ? String(params[paramName]) : match
+  );
+}
