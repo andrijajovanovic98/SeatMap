@@ -37,7 +37,7 @@ export function SeatFlowApp() {
         setActiveSeatId(null);
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d" && selectedId) {
         e.preventDefault();
-        dispatch({ type: "DUPLICATE_ITEM", id: selectedId });
+        dispatch({ type: "DUPLICATE_ITEM", id: selectedId, copySuffix: t("properties.copySuffix") });
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
         e.preventDefault();
         undo();
@@ -56,7 +56,7 @@ export function SeatFlowApp() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedId, dispatch, setSelectedId, undo]);
+  }, [selectedId, dispatch, setSelectedId, undo, t]);
 
   return (
     <div className="flex h-full flex-col">

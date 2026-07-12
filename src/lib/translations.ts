@@ -25,6 +25,7 @@ const dict = {
     "table.circle": "Körasztal",
     "table.rectangle": "Téglalap asztal",
     "table.long": "Hosszú asztal",
+    "table.defaultName": "{number}. asztal",
     "floor.danceFloor": "Tánctér",
     "floor.stage": "Színpad",
     "floor.bar": "Bár",
@@ -66,6 +67,7 @@ const dict = {
     "properties.color": "Szín",
     "properties.duplicate": "Másolás",
     "properties.delete": "Törlés",
+    "properties.copySuffix": "(másolat)",
     "properties.capacityWarning.title": "Vendégek eltávolítása ülőhelyről",
     "properties.capacityWarning.message":
       "A csökkentett ülőhelyszám miatt egy vagy több vendég elveszíti a helyét, és visszakerül az elhelyezetlen vendégek közé. Folytatod?",
@@ -176,6 +178,7 @@ const dict = {
     "table.circle": "Round table",
     "table.rectangle": "Rectangular table",
     "table.long": "Long table",
+    "table.defaultName": "Table {number}",
     "floor.danceFloor": "Dance floor",
     "floor.stage": "Stage",
     "floor.bar": "Bar",
@@ -217,6 +220,7 @@ const dict = {
     "properties.color": "Color",
     "properties.duplicate": "Duplicate",
     "properties.delete": "Delete",
+    "properties.copySuffix": "(copy)",
     "properties.capacityWarning.title": "Remove guests from seats",
     "properties.capacityWarning.message":
       "Reducing the number of seats will remove one or more seated guests, returning them to the unassigned list. Continue?",

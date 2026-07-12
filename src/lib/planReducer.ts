@@ -16,7 +16,7 @@ import {
 export type PlanAction =
   | { type: "SET_PLAN"; plan: SeatingPlan }
   | { type: "SET_EVENT_NAME"; name: string }
-  | { type: "ADD_TABLE"; shape: TableShape }
+  | { type: "ADD_TABLE"; shape: TableShape; defaultName?: string }
   | { type: "ADD_FLOOR_ELEMENT"; elementType: FloorElementType }
   | { type: "MOVE_ITEM"; id: string; x: number; y: number }
   | { type: "NUDGE_ITEM"; id: string; dx: number; dy: number }
@@ -27,7 +27,7 @@ export type PlanAction =
   | { type: "SET_TABLE_CAPACITY"; id: string; capacity: number }
   | { type: "SET_TABLE_SHAPE"; id: string; shape: TableShape }
   | { type: "DELETE_ITEM"; id: string }
-  | { type: "DUPLICATE_ITEM"; id: string }
+  | { type: "DUPLICATE_ITEM"; id: string; copySuffix?: string }
   | { type: "ADD_GUEST"; id?: string; name: string; note?: string }
   | { type: "RENAME_GUEST"; id: string; name: string }
   | { type: "SET_GUEST_NOTE"; id: string; note: string }
@@ -101,7 +101,7 @@ export function planReducer(plan: SeatingPlan, action: PlanAction): SeatingPlan 
       const table: TableItem = {
         id: generateId("table"),
         kind: "table",
-        name: `${plan.tables.length + 1}. asztal`,
+        name: action.defaultName ?? `Table ${plan.tables.length + 1}`,
         shape,
         x: center.x,
         y: center.y,
@@ -216,13 +216,14 @@ export function planReducer(plan: SeatingPlan, action: PlanAction): SeatingPlan 
     }
 
     case "DUPLICATE_ITEM": {
+      const copySuffix = action.copySuffix ?? "(copy)";
       const table = plan.tables.find((t) => t.id === action.id);
       if (table) {
         const newId = generateId("table");
         const clone: TableItem = {
           ...table,
           id: newId,
-          name: `${table.name} (másolat)`,
+          name: `${table.name} ${copySuffix}`,
           x: Math.min(table.x + 30, plan.room.width - table.width / 2),
           y: Math.min(table.y + 30, plan.room.height - table.height / 2),
           seats: [],
@@ -235,7 +236,7 @@ export function planReducer(plan: SeatingPlan, action: PlanAction): SeatingPlan 
         const clone: FloorElementItem = {
           ...element,
           id: generateId("floor"),
-          name: `${element.name} (másolat)`,
+          name: `${element.name} ${copySuffix}`,
           x: Math.min(element.x + 30, plan.room.width - element.width / 2),
           y: Math.min(element.y + 30, plan.room.height - element.height / 2),
         };

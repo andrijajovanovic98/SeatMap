@@ -159,7 +159,8 @@ export function FloorCanvas({ onSeatClick }: { onSeatClick: (seatId: string) => 
     e.preventDefault();
     const tool = JSON.parse(raw) as ToolItem;
     if (tool.kind === "table") {
-      dispatch({ type: "ADD_TABLE", shape: tool.shape });
+      const defaultName = t("table.defaultName", { number: plan.tables.length + 1 });
+      dispatch({ type: "ADD_TABLE", shape: tool.shape, defaultName });
     } else {
       dispatch({ type: "ADD_FLOOR_ELEMENT", elementType: tool.elementType });
     }

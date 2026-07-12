@@ -40,12 +40,13 @@ const TOOLS: ToolItem[] = [
 ];
 
 export function EditorSidebar({ onItemAdded }: { onItemAdded?: () => void }) {
-  const { dispatch } = usePlan();
+  const { plan, dispatch } = usePlan();
   const { t } = useLanguage();
 
   const handleAdd = (tool: ToolItem) => {
     if (tool.kind === "table") {
-      dispatch({ type: "ADD_TABLE", shape: tool.shape });
+      const defaultName = t("table.defaultName", { number: plan.tables.length + 1 });
+      dispatch({ type: "ADD_TABLE", shape: tool.shape, defaultName });
     } else {
       dispatch({ type: "ADD_FLOOR_ELEMENT", elementType: tool.elementType });
     }

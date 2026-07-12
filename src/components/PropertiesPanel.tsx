@@ -33,7 +33,7 @@ export function PropertiesPanel() {
 
   const handleDuplicate = () => {
     if (!selectedId) return;
-    dispatch({ type: "DUPLICATE_ITEM", id: selectedId });
+    dispatch({ type: "DUPLICATE_ITEM", id: selectedId, copySuffix: t("properties.copySuffix") });
   };
 
   const handleCapacityChange = (value: number) => {
