@@ -18,6 +18,7 @@ const dict = {
       "Biztosan új tervet szeretnél létrehozni? A jelenlegi terv törlődni fog.",
     "header.newPlan.confirm": "Törlés és új terv",
     "header.language": "Nyelv",
+    "header.logout": "Kijelentkezés",
 
     "sidebar.elements": "Elemek",
     "sidebar.instructions": "Kattints egy elemre a terem közepére helyezéshez, vagy húzd a vászonra.",
@@ -126,9 +127,22 @@ const dict = {
       "A fájl nem olvasható be. Győződj meg róla, hogy érvényes JSON fájlt választottál.",
     "exportImport.heading": "Exportálás / Importálás",
     "exportImport.exportButton": "Terv exportálása JSON fájlba",
+    "exportImport.csvButton": "Vendéglista exportálása Excelbe (CSV)",
     "exportImport.importButton": "Terv importálása JSON fájlból",
     "exportImport.warning":
       "Az importálás felülírja a jelenlegi tervet. Érdemes előtte exportálni a jelenlegi állapotot.",
+
+    "csv.yes": "Igen",
+    "csv.no": "Nem",
+    "csv.header.name": "Név",
+    "csv.header.table": "Asztal",
+    "csv.header.seat": "Ülőhely",
+    "csv.header.gluten": "Glutén",
+    "csv.header.lactose": "Laktóz",
+    "csv.header.otherAllergy": "Egyéb allergia",
+    "csv.header.childAge": "Gyermek kora",
+    "csv.header.highChair": "Etetőszék",
+    "csv.header.comment": "Megjegyzés",
 
     "print.subtitle": "Teremrajz és ülésrend",
     "print.tableHeader": "Asztal",
@@ -155,6 +169,16 @@ const dict = {
     "comments.empty": "Még nincs egyetlen komment sem.",
     "comments.markSeenAria": "Megjelölés látottként",
     "comments.deleteAria": "Törlés",
+
+    "login.title": "Bejelentkezés",
+    "login.subtitle": "Add meg az adataidat a folytatáshoz.",
+    "login.username": "Felhasználónév",
+    "login.password": "Jelszó",
+    "login.submit": "Bejelentkezés",
+    "login.submitting": "Bejelentkezés…",
+    "login.error.invalid": "Hibás felhasználónév vagy jelszó.",
+    "login.error.rateLimited": "Túl sok próbálkozás. Kérlek, várj egy percet, mielőtt újra próbálod.",
+    "login.error.generic": "Hiba történt. Kérlek, próbáld újra.",
   },
   en: {
     "app.name": "SeatFlow",
@@ -171,6 +195,7 @@ const dict = {
       "Are you sure you want to create a new plan? The current plan will be deleted.",
     "header.newPlan.confirm": "Delete and create new",
     "header.language": "Language",
+    "header.logout": "Sign out",
 
     "sidebar.elements": "Elements",
     "sidebar.instructions": "Click an element to place it in the center of the room, or drag it onto the canvas.",
@@ -279,9 +304,22 @@ const dict = {
       "The file could not be read. Make sure you selected a valid JSON file.",
     "exportImport.heading": "Export / Import",
     "exportImport.exportButton": "Export plan to JSON file",
+    "exportImport.csvButton": "Export guest list to Excel (CSV)",
     "exportImport.importButton": "Import plan from JSON file",
     "exportImport.warning":
       "Importing will overwrite the current plan. Consider exporting the current state first.",
+
+    "csv.yes": "Yes",
+    "csv.no": "No",
+    "csv.header.name": "Name",
+    "csv.header.table": "Table",
+    "csv.header.seat": "Seat",
+    "csv.header.gluten": "Gluten",
+    "csv.header.lactose": "Lactose",
+    "csv.header.otherAllergy": "Other allergy",
+    "csv.header.childAge": "Child age",
+    "csv.header.highChair": "High chair",
+    "csv.header.comment": "Comment",
 
     "print.subtitle": "Floor plan and seating chart",
     "print.tableHeader": "Table",
@@ -308,6 +346,16 @@ const dict = {
     "comments.empty": "No comments yet.",
     "comments.markSeenAria": "Mark as seen",
     "comments.deleteAria": "Delete",
+
+    "login.title": "Sign in",
+    "login.subtitle": "Enter your credentials to continue.",
+    "login.username": "Username",
+    "login.password": "Password",
+    "login.submit": "Sign in",
+    "login.submitting": "Signing in…",
+    "login.error.invalid": "Incorrect username or password.",
+    "login.error.rateLimited": "Too many attempts. Please wait a minute before trying again.",
+    "login.error.generic": "Something went wrong. Please try again.",
   },
 } as const;
 

@@ -2,9 +2,10 @@
 
 import { useLanguage } from "@/context/LanguageContext";
 import { usePlan } from "@/context/PlanContext";
+import { buildGuestCsv } from "@/lib/csvExport";
 import { isValidPlan } from "@/lib/storage";
 import { SeatingPlan } from "@/types/seating";
-import { Download, Upload, X } from "lucide-react";
+import { Download, FileSpreadsheet, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 
 export function ExportImportDialog({ onClose }: { onClose: () => void }) {
@@ -13,17 +14,27 @@ export function ExportImportDialog({ onClose }: { onClose: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleExport = () => {
-    const blob = new Blob([JSON.stringify(plan, null, 2)], { type: "application/json" });
+  const safeFileName = () =>
+    plan.eventName.trim().replace(/[^\p{L}\p{N}\-_ ]/gu, "") || t("exportImport.filenameFallback");
+
+  const downloadBlob = (content: string, mimeType: string, extension: string) => {
+    const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    const safeName = plan.eventName.trim().replace(/[^\p{L}\p{N}\-_ ]/gu, "") || t("exportImport.filenameFallback");
     a.href = url;
-    a.download = `${safeName}.json`;
+    a.download = `${safeFileName()}.${extension}`;
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
+  };
+
+  const handleExport = () => {
+    downloadBlob(JSON.stringify(plan, null, 2), "application/json", "json");
+  };
+
+  const handleExportCsv = () => {
+    downloadBlob(buildGuestCsv(plan, t), "text/csv;charset=utf-8", "csv");
   };
 
   const handleImportClick = () => {
@@ -71,6 +82,14 @@ export function ExportImportDialog({ onClose }: { onClose: () => void }) {
           >
             <Download className="h-4 w-4" />
             {t("exportImport.exportButton")}
+          </button>
+
+          <button
+            onClick={handleExportCsv}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-700 hover:bg-emerald-100"
+          >
+            <FileSpreadsheet className="h-4 w-4" />
+            {t("exportImport.csvButton")}
           </button>
 
           <button
