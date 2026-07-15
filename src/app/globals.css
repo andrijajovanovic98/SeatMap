@@ -33,3 +33,48 @@ body {
     display: block !important;
   }
 }
+
+/* ===== Login scene idle animations ===== */
+@keyframes ls-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes ls-wave {
+  0%, 60%, 100% { transform: rotate(0deg); }
+  70% { transform: rotate(-16deg); }
+  80% { transform: rotate(10deg); }
+  90% { transform: rotate(-12deg); }
+}
+@keyframes ls-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.1); }
+}
+@keyframes ls-toast {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-9deg); }
+}
+@keyframes ls-bubble {
+  0% { transform: translateY(0); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(-9px); opacity: 0; }
+}
+@keyframes ls-confetti {
+  0%, 100% { transform: translateY(0); opacity: 0.9; }
+  50% { transform: translateY(4px); opacity: 1; }
+}
+
+.ls-float-a { animation: ls-float 4.5s ease-in-out infinite; }
+.ls-float-b { animation: ls-float 5.2s ease-in-out infinite; animation-delay: -1.5s; }
+.ls-float-c { animation: ls-float 4s ease-in-out infinite; animation-delay: -0.8s; }
+.ls-wave { animation: ls-wave 4s ease-in-out infinite; animation-delay: 0.6s; transform-box: fill-box; transform-origin: 10% 90%; }
+.ls-blink { animation: ls-blink 5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.ls-toast { animation: ls-toast 3.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+.ls-bubble { animation: ls-bubble 2.4s ease-in-out infinite; transform-box: fill-box; }
+.ls-confetti { animation: ls-confetti 3s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-float-a, .ls-float-b, .ls-float-c,
+  .ls-wave, .ls-blink, .ls-toast, .ls-bubble, .ls-confetti {
+    animation: none !important;
+  }
+}

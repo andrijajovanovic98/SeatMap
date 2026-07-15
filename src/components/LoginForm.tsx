@@ -1,7 +1,8 @@
 "use client";
 
+import { LoginScene } from "@/components/LoginScene";
 import { useLanguage } from "@/context/LanguageContext";
-import { LayoutGrid, Lock } from "lucide-react";
+import { LayoutGrid } from "lucide-react";
 import { useState } from "react";
 
 export function LoginForm() {
@@ -41,43 +42,43 @@ export function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-full flex-1 items-center justify-center bg-gray-100 p-4">
-      <div className="w-full max-w-sm">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-indigo-600">
-            <LayoutGrid className="h-6 w-6" />
-            <span className="text-xl font-bold tracking-tight">{t("app.name")}</span>
-          </div>
-          <div
-            className="flex items-center rounded-lg border border-gray-200 p-0.5 text-xs font-medium"
-            role="group"
-            aria-label={t("header.language")}
-          >
-            <button
-              type="button"
-              onClick={() => setLanguage("hu")}
-              className={`rounded-md px-2 py-1 ${
-                language === "hu" ? "bg-indigo-600 text-white" : "text-gray-500 hover:bg-gray-100"
-              }`}
-            >
-              HU
-            </button>
-            <button
-              type="button"
-              onClick={() => setLanguage("en")}
-              className={`rounded-md px-2 py-1 ${
-                language === "en" ? "bg-indigo-600 text-white" : "text-gray-500 hover:bg-gray-100"
-              }`}
-            >
-              EN
-            </button>
-          </div>
-        </div>
+    <div className="relative flex min-h-full flex-1 flex-col overflow-hidden bg-[#eef0fb]">
+      {/* language toggle, pinned top-right above the scene */}
+      <div
+        className="absolute right-4 top-4 z-20 flex items-center rounded-lg border border-gray-200 bg-white/85 p-0.5 text-xs font-medium backdrop-blur"
+        role="group"
+        aria-label={t("header.language")}
+      >
+        <button
+          type="button"
+          onClick={() => setLanguage("hu")}
+          className={`rounded-md px-2 py-1 ${
+            language === "hu" ? "bg-indigo-600 text-white" : "text-gray-500 hover:bg-gray-100"
+          }`}
+        >
+          HU
+        </button>
+        <button
+          type="button"
+          onClick={() => setLanguage("en")}
+          className={`rounded-md px-2 py-1 ${
+            language === "en" ? "bg-indigo-600 text-white" : "text-gray-500 hover:bg-gray-100"
+          }`}
+        >
+          EN
+        </button>
+      </div>
 
-        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+      {/* decorative party scene fills the top */}
+      <LoginScene />
+
+      {/* login card, overlapping the lower part of the scene */}
+      <div className="relative z-10 mx-auto mt-[210px] w-full max-w-sm px-4 pb-10">
+        <div className="rounded-2xl bg-white p-6 shadow-[0_16px_44px_rgba(31,41,55,0.16)] ring-1 ring-black/5">
           <div className="mb-5 flex flex-col items-center text-center">
-            <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
-              <Lock className="h-5 w-5" />
+            <div className="mb-2 flex items-center gap-1.5 text-indigo-600">
+              <LayoutGrid className="h-6 w-6" />
+              <span className="text-xl font-bold tracking-tight">{t("app.name")}</span>
             </div>
             <h1 className="text-lg font-semibold text-gray-900">{t("login.title")}</h1>
             <p className="mt-1 text-sm text-gray-500">{t("login.subtitle")}</p>
@@ -115,7 +116,7 @@ export function LoginForm() {
             <button
               type="submit"
               disabled={submitting}
-              className="mt-1 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-1 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {submitting ? t("login.submitting") : t("login.submit")}
             </button>
