@@ -4,6 +4,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "SeatFlow - Seating Plan Designer",
   description: "Visual seating-plan designer for weddings and events",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function RootLayout({
