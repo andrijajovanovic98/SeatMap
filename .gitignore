@@ -54,3 +54,4 @@ start-py-*.log
 # local tunnel helper script (not part of the published project)
 start.py
 .vercel
+.env*

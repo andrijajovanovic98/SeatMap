@@ -127,7 +127,7 @@ const dict = {
       "A fájl nem olvasható be. Győződj meg róla, hogy érvényes JSON fájlt választottál.",
     "exportImport.heading": "Exportálás / Importálás",
     "exportImport.exportButton": "Terv exportálása JSON fájlba",
-    "exportImport.csvButton": "Vendéglista exportálása Excelbe (CSV)",
+    "exportImport.xlsxButton": "Vendéglista exportálása Excelbe (.xlsx)",
     "exportImport.importButton": "Terv importálása JSON fájlból",
     "exportImport.warning":
       "Az importálás felülírja a jelenlegi tervet. Érdemes előtte exportálni a jelenlegi állapotot.",
@@ -304,7 +304,7 @@ const dict = {
       "The file could not be read. Make sure you selected a valid JSON file.",
     "exportImport.heading": "Export / Import",
     "exportImport.exportButton": "Export plan to JSON file",
-    "exportImport.csvButton": "Export guest list to Excel (CSV)",
+    "exportImport.xlsxButton": "Export guest list to Excel (.xlsx)",
     "exportImport.importButton": "Import plan from JSON file",
     "exportImport.warning":
       "Importing will overwrite the current plan. Consider exporting the current state first.",

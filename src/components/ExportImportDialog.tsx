@@ -2,7 +2,7 @@
 
 import { useLanguage } from "@/context/LanguageContext";
 import { usePlan } from "@/context/PlanContext";
-import { buildGuestCsv } from "@/lib/csvExport";
+import { buildGuestXlsx } from "@/lib/xlsxExport";
 import { isValidPlan } from "@/lib/storage";
 import { SeatingPlan } from "@/types/seating";
 import { Download, FileSpreadsheet, Upload, X } from "lucide-react";
@@ -17,8 +17,7 @@ export function ExportImportDialog({ onClose }: { onClose: () => void }) {
   const safeFileName = () =>
     plan.eventName.trim().replace(/[^\p{L}\p{N}\-_ ]/gu, "") || t("exportImport.filenameFallback");
 
-  const downloadBlob = (content: string, mimeType: string, extension: string) => {
-    const blob = new Blob([content], { type: mimeType });
+  const downloadBlob = (blob: Blob, extension: string) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -30,11 +29,11 @@ export function ExportImportDialog({ onClose }: { onClose: () => void }) {
   };
 
   const handleExport = () => {
-    downloadBlob(JSON.stringify(plan, null, 2), "application/json", "json");
+    downloadBlob(new Blob([JSON.stringify(plan, null, 2)], { type: "application/json" }), "json");
   };
 
-  const handleExportCsv = () => {
-    downloadBlob(buildGuestCsv(plan, t), "text/csv;charset=utf-8", "csv");
+  const handleExportXlsx = () => {
+    downloadBlob(buildGuestXlsx(plan, t), "xlsx");
   };
 
   const handleImportClick = () => {
@@ -85,11 +84,11 @@ export function ExportImportDialog({ onClose }: { onClose: () => void }) {
           </button>
 
           <button
-            onClick={handleExportCsv}
+            onClick={handleExportXlsx}
             className="flex w-full items-center justify-center gap-2 rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-700 hover:bg-emerald-100"
           >
             <FileSpreadsheet className="h-4 w-4" />
-            {t("exportImport.csvButton")}
+            {t("exportImport.xlsxButton")}
           </button>
 
           <button
