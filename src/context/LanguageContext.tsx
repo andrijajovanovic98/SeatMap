@@ -13,13 +13,20 @@ type LanguageContextValue = {
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
-function loadLanguage(): Language {
-  const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
-  return stored === "en" ? "en" : "hu";
-}
-
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>(() => loadLanguage());
+  // Start with the default so server render and first client render match (no hydration
+  // mismatch); the stored preference is applied in an effect once mounted.
+  const [language, setLanguageState] = useState<Language>("hu");
+
+  useEffect(() => {
+    // Read the persisted preference only after mount so server render and the first client
+    // render agree on "hu" (no hydration mismatch), then switch to the stored value.
+    const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    if (stored === "en" || stored === "hu") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLanguageState(stored);
+    }
+  }, []);
 
   const setLanguage = useCallback((next: Language) => {
     setLanguageState(next);

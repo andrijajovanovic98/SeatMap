@@ -10,7 +10,7 @@ import { usePlan } from "@/context/PlanContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { createDemoPlan } from "@/lib/demoPlan";
 import { clearPlan, savePlan } from "@/lib/storage";
-import { FileDown, LayoutGrid, MessageSquare, Menu, Plus, Printer, Save } from "lucide-react";
+import { FileDown, LayoutGrid, LogOut, MessageSquare, Menu, Plus, Printer, Save } from "lucide-react";
 import { useState } from "react";
 
 export function AppHeader({
@@ -35,6 +35,14 @@ export function AppHeader({
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/logout", { method: "POST" });
+    } finally {
+      window.location.href = "/login";
+    }
   };
 
   return (
@@ -134,6 +142,14 @@ export function AppHeader({
               {unseenCount}
             </span>
           )}
+        </button>
+        <button
+          onClick={handleLogout}
+          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+          aria-label={t("header.logout")}
+          title={t("header.logout")}
+        >
+          <LogOut className="h-4 w-4" />
         </button>
       </div>
 
