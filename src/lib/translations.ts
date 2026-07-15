@@ -170,8 +170,8 @@ const dict = {
     "comments.markSeenAria": "Megjelölés látottként",
     "comments.deleteAria": "Törlés",
 
-    "login.title": "Isten hozott! 🎉",
-    "login.subtitle": "A vendégek már gyülekeznek — foglald el a helyed.",
+    "login.title": "Üdv újra! 🎉",
+    "login.subtitle": "Jelentkezz be az ülésrend szerkesztéséhez.",
     "login.username": "Felhasználónév",
     "login.password": "Jelszó",
     "login.submit": "Bejelentkezés",
@@ -347,8 +347,8 @@ const dict = {
     "comments.markSeenAria": "Mark as seen",
     "comments.deleteAria": "Delete",
 
-    "login.title": "Welcome! 🎉",
-    "login.subtitle": "The guests are gathering — take your seat.",
+    "login.title": "Welcome back! 🎉",
+    "login.subtitle": "Sign in to edit the seating plan.",
     "login.username": "Username",
     "login.password": "Password",
     "login.submit": "Sign in",

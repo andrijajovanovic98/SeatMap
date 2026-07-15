@@ -43,6 +43,9 @@ export function LoginForm() {
 
   return (
     <div className="relative flex min-h-full flex-1 flex-col overflow-hidden bg-[#eef0fb]">
+      {/* decorative party scene fills the entire page, not just a top band */}
+      <LoginScene />
+
       {/* language toggle, pinned top-right above the scene */}
       <div
         className="absolute right-4 top-4 z-20 flex items-center rounded-lg border border-gray-200 bg-white/85 p-0.5 text-xs font-medium backdrop-blur"
@@ -69,11 +72,8 @@ export function LoginForm() {
         </button>
       </div>
 
-      {/* decorative party scene fills the top */}
-      <LoginScene />
-
       {/* login card, overlapping the lower part of the scene */}
-      <div className="relative z-10 mx-auto mt-[210px] w-full max-w-sm px-4 pb-10">
+      <div className="relative z-10 mx-auto mt-[210px] w-full max-w-sm flex-1 px-4 pb-16">
         <div className="rounded-2xl bg-white p-6 shadow-[0_16px_44px_rgba(31,41,55,0.16)] ring-1 ring-black/5">
           <div className="mb-5 flex flex-col items-center text-center">
             <div className="mb-2 flex items-center gap-1.5 text-indigo-600">

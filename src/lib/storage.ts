@@ -20,7 +20,7 @@ export function savePlan(plan: SeatingPlan) {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(plan));
   } catch {
-    // storage unavailable or full — silently ignore, matches single-user local-only scope
+    // storage unavailable or full, silently ignore, matches single-user local-only scope
   }
 }
 
