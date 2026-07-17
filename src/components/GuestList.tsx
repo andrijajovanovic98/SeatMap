@@ -34,14 +34,14 @@ export function GuestList() {
 
   const handleAddGuest = (name: string, note: string, attrs: GuestAttributesValue) => {
     const id = generateId("guest");
-    const attributes = { ...attrs, childAge: attrs.childAge === "" ? undefined : attrs.childAge };
+    const attributes = { ...attrs, childAgeId: attrs.childAgeId === "" ? undefined : attrs.childAgeId };
     dispatch({ type: "ADD_GUEST", id, name, note });
     dispatch({ type: "UPDATE_GUEST_ATTRIBUTES", id, attributes });
   };
 
   const handleEditGuest = (name: string, note: string, attrs: GuestAttributesValue) => {
     if (!editingGuest) return;
-    const attributes = { ...attrs, childAge: attrs.childAge === "" ? undefined : attrs.childAge };
+    const attributes = { ...attrs, childAgeId: attrs.childAgeId === "" ? undefined : attrs.childAgeId };
     dispatch({ type: "RENAME_GUEST", id: editingGuest.id, name });
     dispatch({ type: "SET_GUEST_NOTE", id: editingGuest.id, note });
     dispatch({ type: "UPDATE_GUEST_ATTRIBUTES", id: editingGuest.id, attributes });

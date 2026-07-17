@@ -21,8 +21,10 @@ export function GuestDialog({
   const [attrs, setAttrs] = useState<GuestAttributesValue>({
     glutenFree: guest?.glutenFree ?? false,
     lactoseFree: guest?.lactoseFree ?? false,
+    vegan: guest?.vegan ?? false,
+    vegetarian: guest?.vegetarian ?? false,
     otherAllergy: guest?.otherAllergy ?? false,
-    childAge: guest?.childAge ?? "",
+    childAgeId: guest?.childAgeId ?? "",
     highChair: guest?.highChair ?? false,
   });
 

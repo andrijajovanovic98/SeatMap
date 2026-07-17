@@ -5,12 +5,18 @@ import { usePlan } from "@/context/PlanContext";
 import { TranslationKey } from "@/lib/translations";
 import { FloorElementType, TableShape } from "@/types/seating";
 import {
+  AppWindow,
   Circle,
   DoorOpen,
   Martini,
   Music,
+  Music2,
+  PanelTop,
   RectangleHorizontal,
+  Toilet,
+  ToyBrick,
   Type,
+  UtensilsCrossed,
   Users,
 } from "lucide-react";
 
@@ -32,10 +38,21 @@ const TOOLS: ToolItem[] = [
     labelKey: "table.long",
     icon: <RectangleHorizontal className="h-5 w-5 rotate-90" />,
   },
+  {
+    kind: "table",
+    shape: "longOneSided",
+    labelKey: "table.longOneSided",
+    icon: <PanelTop className="h-5 w-5" />,
+  },
   { kind: "floorElement", elementType: "danceFloor", labelKey: "floor.danceFloor", icon: <Music className="h-5 w-5" /> },
   { kind: "floorElement", elementType: "stage", labelKey: "floor.stage", icon: <Users className="h-5 w-5" /> },
   { kind: "floorElement", elementType: "bar", labelKey: "floor.bar", icon: <Martini className="h-5 w-5" /> },
+  { kind: "floorElement", elementType: "buffet", labelKey: "floor.buffet", icon: <UtensilsCrossed className="h-5 w-5" /> },
+  { kind: "floorElement", elementType: "band", labelKey: "floor.band", icon: <Music2 className="h-5 w-5" /> },
+  { kind: "floorElement", elementType: "kidsCorner", labelKey: "floor.kidsCorner", icon: <ToyBrick className="h-5 w-5" /> },
   { kind: "floorElement", elementType: "entrance", labelKey: "floor.entrance", icon: <DoorOpen className="h-5 w-5" /> },
+  { kind: "floorElement", elementType: "window", labelKey: "floor.window", icon: <AppWindow className="h-5 w-5" /> },
+  { kind: "floorElement", elementType: "wc", labelKey: "floor.wc", icon: <Toilet className="h-5 w-5" /> },
   { kind: "floorElement", elementType: "text", labelKey: "floor.textLabel", icon: <Type className="h-5 w-5" /> },
 ];
 

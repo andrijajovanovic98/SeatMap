@@ -1,21 +1,25 @@
 "use client";
 
 import { useLanguage } from "@/context/LanguageContext";
-import { ChildAgeCategory } from "@/types/seating";
+import { usePlan } from "@/context/PlanContext";
 
 export type GuestAttributesValue = {
   glutenFree: boolean;
   lactoseFree: boolean;
+  vegan: boolean;
+  vegetarian: boolean;
   otherAllergy: boolean;
-  childAge: ChildAgeCategory | "";
+  childAgeId: string;
   highChair: boolean;
 };
 
 export const DEFAULT_GUEST_ATTRIBUTES: GuestAttributesValue = {
   glutenFree: false,
   lactoseFree: false,
+  vegan: false,
+  vegetarian: false,
   otherAllergy: false,
-  childAge: "",
+  childAgeId: "",
   highChair: false,
 };
 
@@ -49,6 +53,7 @@ export function GuestAttributesFields({
   onChange: (next: GuestAttributesValue) => void;
 }) {
   const { t } = useLanguage();
+  const { plan } = usePlan();
 
   return (
     <div className="flex flex-col gap-3">
@@ -65,6 +70,16 @@ export function GuestAttributesFields({
           label={t("guestAttrs.lactoseFree")}
         />
         <Checkbox
+          checked={value.vegan}
+          onChange={(vegan) => onChange({ ...value, vegan })}
+          label={t("guestAttrs.vegan")}
+        />
+        <Checkbox
+          checked={value.vegetarian}
+          onChange={(vegetarian) => onChange({ ...value, vegetarian })}
+          label={t("guestAttrs.vegetarian")}
+        />
+        <Checkbox
           checked={value.otherAllergy}
           onChange={(otherAllergy) => onChange({ ...value, otherAllergy })}
           label={t("guestAttrs.otherAllergy")}
@@ -74,13 +89,16 @@ export function GuestAttributesFields({
       <div className="flex flex-col gap-1.5">
         <span className="text-xs font-medium text-gray-500">{t("guestAttrs.childHeading")}</span>
         <select
-          value={value.childAge}
-          onChange={(e) => onChange({ ...value, childAge: e.target.value as ChildAgeCategory | "" })}
+          value={value.childAgeId}
+          onChange={(e) => onChange({ ...value, childAgeId: e.target.value })}
           className="input"
         >
           <option value="">{t("childAge.none")}</option>
-          <option value="under3">{t("childAge.under3.short")}</option>
-          <option value="age3to12">{t("childAge.age3to12.short")}</option>
+          {plan.childAgeCategories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.label}
+            </option>
+          ))}
         </select>
         <Checkbox
           checked={value.highChair}

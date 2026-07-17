@@ -1,8 +1,8 @@
 "use client";
 
 import { useLanguage } from "@/context/LanguageContext";
-import { CHILD_AGE_LABEL_KEYS, Guest, Seat } from "@/types/seating";
-import { Armchair, Baby, PersonStanding } from "lucide-react";
+import { Guest, Seat } from "@/types/seating";
+import { Armchair } from "lucide-react";
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
@@ -11,7 +11,17 @@ function getInitials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-export function SeatTooltipContent({ seat, guest, tableName }: { seat: Seat; guest: Guest | undefined; tableName: string }) {
+export function SeatTooltipContent({
+  seat,
+  guest,
+  tableName,
+  childAgeLabel,
+}: {
+  seat: Seat;
+  guest: Guest | undefined;
+  tableName: string;
+  childAgeLabel?: string;
+}) {
   const { t } = useLanguage();
   const occupied = Boolean(guest);
   const seatLabel = t("seat.label", { table: tableName, seatNumber: seat.seatNumber });
@@ -20,6 +30,8 @@ export function SeatTooltipContent({ seat, guest, tableName }: { seat: Seat; gue
     ? [
         guest!.glutenFree && { label: t("seat.glutenFree"), color: "#fde047" },
         guest!.lactoseFree && { label: t("seat.lactoseFree"), color: "#f97316" },
+        guest!.vegan && { label: t("seat.vegan"), color: "#22c55e" },
+        guest!.vegetarian && { label: t("seat.vegetarian"), color: "#84cc16" },
         guest!.otherAllergy && { label: t("seat.otherAllergy"), color: "#ef4444" },
       ].filter((tag): tag is { label: string; color: string } => Boolean(tag))
     : [];
@@ -45,9 +57,7 @@ export function SeatTooltipContent({ seat, guest, tableName }: { seat: Seat; gue
           ))}
         </div>
       )}
-      {guest!.childAge && (
-        <p className="mt-1 text-[11px] text-sky-300">{t(CHILD_AGE_LABEL_KEYS[guest!.childAge!])}</p>
-      )}
+      {childAgeLabel && <p className="mt-1 text-[11px] text-sky-300">{childAgeLabel}</p>}
       {guest!.highChair && <p className="text-[11px] text-amber-300">{t("seat.highChair")}</p>}
       {guest!.note && <p className="mt-1 text-[11px] italic text-gray-400">{guest!.note}</p>}
     </>
@@ -59,6 +69,7 @@ export function SeatElement({
   guest,
   x,
   y,
+  childAgeLabel,
   onClick,
   onDropGuest,
   onHoverChange,
@@ -67,6 +78,7 @@ export function SeatElement({
   guest: Guest | undefined;
   x: number;
   y: number;
+  childAgeLabel?: string;
   onClick: () => void;
   onDropGuest?: (guestId: string) => void;
   onHoverChange?: (hovering: boolean) => void;
@@ -93,6 +105,8 @@ export function SeatElement({
     ? [
         guest!.glutenFree && "#fde047",
         guest!.lactoseFree && "#f97316",
+        guest!.vegan && "#22c55e",
+        guest!.vegetarian && "#84cc16",
         guest!.otherAllergy && "#ef4444",
       ].filter((color): color is string => Boolean(color))
     : [];
@@ -123,13 +137,9 @@ export function SeatElement({
         </span>
       )}
 
-      {occupied && guest!.childAge && (
-        <span className="pointer-events-none absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-white ring-1 ring-gray-300">
-          {guest!.childAge === "under3" ? (
-            <Baby className="h-3 w-3 text-sky-600" />
-          ) : (
-            <PersonStanding className="h-3 w-3 text-sky-600" />
-          )}
+      {occupied && childAgeLabel && (
+        <span className="pointer-events-none absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-white px-0.5 text-[8px] font-bold leading-none text-sky-600 ring-1 ring-gray-300">
+          {childAgeLabel}
         </span>
       )}
 

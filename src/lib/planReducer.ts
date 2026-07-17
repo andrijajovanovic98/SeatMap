@@ -5,6 +5,7 @@ import {
   DEFAULT_CAPACITY,
   DEFAULT_FLOOR_ELEMENT_SIZE,
   DEFAULT_TABLE_SIZE,
+  FLOOR_ELEMENT_DEFAULT_COLOR,
   FloorElementItem,
   FloorElementType,
   Guest,
@@ -35,15 +36,23 @@ export type PlanAction =
       type: "UPDATE_GUEST_ATTRIBUTES";
       id: string;
       attributes: Partial<
-        Pick<Guest, "glutenFree" | "lactoseFree" | "otherAllergy" | "childAge" | "highChair">
+        Pick<
+          Guest,
+          "glutenFree" | "lactoseFree" | "vegan" | "vegetarian" | "otherAllergy" | "childAgeId" | "highChair"
+        >
       >;
     }
   | { type: "DELETE_GUEST"; id: string }
   | { type: "ASSIGN_GUEST_TO_SEAT"; guestId: string; seatId: string }
   | { type: "UNASSIGN_SEAT"; seatId: string }
+  | { type: "SET_ROOM_SIZE"; width: number; height: number }
+  | { type: "ADD_CHILD_AGE_CATEGORY"; label?: string }
+  | { type: "RENAME_CHILD_AGE_CATEGORY"; id: string; label: string }
+  | { type: "DELETE_CHILD_AGE_CATEGORY"; id: string }
   | { type: "RESET_PLAN"; plan: SeatingPlan };
 
 const ROOM_MARGIN = 0;
+export const MIN_ROOM_SIZE = { width: 400, height: 300 };
 
 function clampToRoom(item: { x: number; y: number; width: number; height: number }, room: { width: number; height: number }) {
   const halfW = item.width / 2;
@@ -90,6 +99,51 @@ export function planReducer(plan: SeatingPlan, action: PlanAction): SeatingPlan 
     case "SET_EVENT_NAME":
       return { ...plan, eventName: action.name, updatedAt: new Date().toISOString() };
 
+    case "SET_ROOM_SIZE": {
+      const room = {
+        width: Math.max(MIN_ROOM_SIZE.width, Math.round(action.width)),
+        height: Math.max(MIN_ROOM_SIZE.height, Math.round(action.height)),
+      };
+      // Re-clamp every item so nothing ends up outside a shrunken room.
+      const tables = plan.tables.map((t) => {
+        const pos = clampToRoom(t, room);
+        return { ...t, x: pos.x, y: pos.y };
+      });
+      const floorElements = plan.floorElements.map((f) => {
+        const pos = clampToRoom(f, room);
+        return { ...f, x: pos.x, y: pos.y };
+      });
+      return { ...plan, room, tables, floorElements, updatedAt: new Date().toISOString() };
+    }
+
+    case "ADD_CHILD_AGE_CATEGORY": {
+      const category = { id: generateId("child-age"), label: action.label ?? "" };
+      return {
+        ...plan,
+        childAgeCategories: [...plan.childAgeCategories, category],
+        updatedAt: new Date().toISOString(),
+      };
+    }
+
+    case "RENAME_CHILD_AGE_CATEGORY": {
+      return {
+        ...plan,
+        childAgeCategories: plan.childAgeCategories.map((c) =>
+          c.id === action.id ? { ...c, label: action.label } : c
+        ),
+        updatedAt: new Date().toISOString(),
+      };
+    }
+
+    case "DELETE_CHILD_AGE_CATEGORY": {
+      return {
+        ...plan,
+        childAgeCategories: plan.childAgeCategories.filter((c) => c.id !== action.id),
+        guests: plan.guests.map((g) => (g.childAgeId === action.id ? { ...g, childAgeId: undefined } : g)),
+        updatedAt: new Date().toISOString(),
+      };
+    }
+
     case "ADD_TABLE": {
       const shape = action.shape;
       const size = DEFAULT_TABLE_SIZE[shape];
@@ -133,7 +187,7 @@ export function planReducer(plan: SeatingPlan, action: PlanAction): SeatingPlan 
         width: size.width,
         height: size.height,
         rotation: 0,
-        color: type === "text" ? "#1f2937" : "#a1a1aa",
+        color: FLOOR_ELEMENT_DEFAULT_COLOR[type],
       };
       return { ...plan, floorElements: [...plan.floorElements, element], updatedAt: new Date().toISOString() };
     }

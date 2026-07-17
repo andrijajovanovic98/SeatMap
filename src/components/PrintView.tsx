@@ -3,21 +3,29 @@
 import { useLanguage } from "@/context/LanguageContext";
 import { computeSeatPositions } from "@/lib/seatLayout";
 import { TranslationKey } from "@/lib/translations";
-import { Guest, SeatingPlan } from "@/types/seating";
+import { FLOOR_ELEMENT_LABEL_KEYS, Guest, SeatingPlan } from "@/types/seating";
 import { useMemo } from "react";
 
-function guestFlagsSummary(t: (key: TranslationKey) => string, guest: Guest): string {
+function guestFlagsSummary(
+  t: (key: TranslationKey) => string,
+  guest: Guest,
+  childAgeLabelById: Map<string, string>
+): string {
   const parts: string[] = [];
   if (guest.glutenFree) parts.push(t("print.flag.gluten"));
   if (guest.lactoseFree) parts.push(t("print.flag.lactose"));
+  if (guest.vegan) parts.push(t("print.flag.vegan"));
+  if (guest.vegetarian) parts.push(t("print.flag.vegetarian"));
   if (guest.otherAllergy) parts.push(t("print.flag.allergy"));
-  if (guest.childAge === "under3") parts.push(t("print.flag.under3"));
-  if (guest.childAge === "age3to12") parts.push(t("print.flag.age3to12"));
+  if (guest.childAgeId) {
+    const label = childAgeLabelById.get(guest.childAgeId);
+    if (label) parts.push(label);
+  }
   if (guest.highChair) parts.push(t("print.flag.highChair"));
   return parts.length ? ` (${parts.join(", ")})` : "";
 }
 
-export function PrintView({ plan }: { plan: SeatingPlan }) {
+export function PrintView({ plan, screen = false }: { plan: SeatingPlan; screen?: boolean }) {
   const { t } = useLanguage();
 
   const guestsById = useMemo(() => {
@@ -26,8 +34,14 @@ export function PrintView({ plan }: { plan: SeatingPlan }) {
     return map;
   }, [plan.guests]);
 
+  const childAgeLabelById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const c of plan.childAgeCategories) map.set(c.id, c.label);
+    return map;
+  }, [plan.childAgeCategories]);
+
   return (
-    <div className="print-only hidden print:block">
+    <div className={screen ? "" : "print-only hidden print:block"}>
       <h1 className="text-2xl font-bold text-gray-900">{plan.eventName}</h1>
       <p className="mb-4 text-sm text-gray-500">{t("print.subtitle")}</p>
 
@@ -48,7 +62,7 @@ export function PrintView({ plan }: { plan: SeatingPlan }) {
                 transform: `translate(-50%, -50%) rotate(${el.rotation}deg)`,
               }}
             >
-              {el.name}
+              {el.name || t(FLOOR_ELEMENT_LABEL_KEYS[el.type])}
             </div>
           ))}
           {plan.tables.map((table) => {
@@ -107,7 +121,9 @@ export function PrintView({ plan }: { plan: SeatingPlan }) {
                   <td className="border border-gray-300 px-2 py-1">{table.name}</td>
                   <td className="border border-gray-300 px-2 py-1">{seat.seatNumber}</td>
                   <td className="border border-gray-300 px-2 py-1">
-                    {guest ? `${guest.name}${guestFlagsSummary(t, guest)}` : t("print.emptySeat")}
+                    {guest
+                      ? `${guest.name}${guestFlagsSummary(t, guest, childAgeLabelById)}`
+                      : t("print.emptySeat")}
                   </td>
                 </tr>
               );

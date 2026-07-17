@@ -20,8 +20,10 @@ export function SeatDialog({ seatId, onClose }: { seatId: string; onClose: () =>
   const [attrs, setAttrs] = useState<GuestAttributesValue>({
     glutenFree: guest?.glutenFree ?? false,
     lactoseFree: guest?.lactoseFree ?? false,
+    vegan: guest?.vegan ?? false,
+    vegetarian: guest?.vegetarian ?? false,
     otherAllergy: guest?.otherAllergy ?? false,
-    childAge: guest?.childAge ?? "",
+    childAgeId: guest?.childAgeId ?? "",
     highChair: guest?.highChair ?? false,
   });
 
@@ -34,7 +36,7 @@ export function SeatDialog({ seatId, onClose }: { seatId: string; onClose: () =>
       onClose();
       return;
     }
-    const attributes = { ...attrs, childAge: attrs.childAge === "" ? undefined : attrs.childAge };
+    const attributes = { ...attrs, childAgeId: attrs.childAgeId === "" ? undefined : attrs.childAgeId };
     if (guest) {
       dispatch({ type: "RENAME_GUEST", id: guest.id, name: trimmed });
       dispatch({ type: "SET_GUEST_NOTE", id: guest.id, note });

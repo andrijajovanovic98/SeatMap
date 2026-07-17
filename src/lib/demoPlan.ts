@@ -1,6 +1,7 @@
 import { generateId } from "@/lib/id";
 import { resizeSeats } from "@/lib/seatLayout";
 import {
+  createDefaultChildAgeCategories,
   DEFAULT_CAPACITY,
   DEFAULT_FLOOR_ELEMENT_SIZE,
   DEFAULT_ROOM_SIZE,
@@ -75,11 +76,13 @@ export function createDemoPlan(): SeatingPlan {
     makeFloorElement("entrance", "", 60, 700),
   ];
 
+  const childAgeCategories = createDefaultChildAgeCategories();
+
   const guests: Guest[] = [
     { id: generateId("guest"), name: "Kovács Anna", glutenFree: true },
-    { id: generateId("guest"), name: "Nagy Péter", childAge: "age3to12" },
+    { id: generateId("guest"), name: "Nagy Péter", childAgeId: childAgeCategories[1].id },
     { id: generateId("guest"), name: "Szabó Réka", lactoseFree: true },
-    { id: generateId("guest"), name: "Tóth Gábor", childAge: "under3", highChair: true },
+    { id: generateId("guest"), name: "Tóth Gábor", childAgeId: childAgeCategories[0].id, highChair: true },
     { id: generateId("guest"), name: "Horváth Eszter", otherAllergy: true, note: "mogyoró" },
     { id: generateId("guest"), name: "Varga Bence" },
   ];
@@ -94,11 +97,27 @@ export function createDemoPlan(): SeatingPlan {
   }
 
   return {
+    id: generateId("event"),
     eventName: "Az én rendezvényem",
     room: DEFAULT_ROOM_SIZE,
     tables,
     floorElements,
     guests,
+    childAgeCategories,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+/** Creates a fresh, empty event: just a default room and no tables/guests yet. */
+export function createBlankPlan(eventName: string): SeatingPlan {
+  return {
+    id: generateId("event"),
+    eventName,
+    room: DEFAULT_ROOM_SIZE,
+    tables: [],
+    floorElements: [],
+    guests: [],
+    childAgeCategories: createDefaultChildAgeCategories(),
     updatedAt: new Date().toISOString(),
   };
 }

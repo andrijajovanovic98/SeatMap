@@ -1,19 +1,21 @@
 "use client";
 
 import { SeatElement, SeatTooltipContent } from "@/components/SeatElement";
+import { usePlan } from "@/context/PlanContext";
 import { computeSeatPositions } from "@/lib/seatLayout";
 import { Guest, TableItem } from "@/types/seating";
-import { AlertTriangle, Armchair, Baby, MilkOff, PersonStanding, WheatOff } from "lucide-react";
-import { useState } from "react";
+import { AlertTriangle, Armchair, Baby, MilkOff, Salad, Sprout, WheatOff } from "lucide-react";
+import { useMemo, useState } from "react";
 
 function GuestNoticeIcons({ guest }: { guest: Guest }) {
   return (
     <>
       {guest.glutenFree && <WheatOff className="h-3 w-3 flex-shrink-0 text-amber-400" />}
       {guest.lactoseFree && <MilkOff className="h-3 w-3 flex-shrink-0 text-sky-300" />}
+      {guest.vegan && <Sprout className="h-3 w-3 flex-shrink-0 text-green-400" />}
+      {guest.vegetarian && <Salad className="h-3 w-3 flex-shrink-0 text-lime-400" />}
       {guest.otherAllergy && <AlertTriangle className="h-3 w-3 flex-shrink-0 text-red-400" />}
-      {guest.childAge === "under3" && <Baby className="h-3 w-3 flex-shrink-0 text-sky-400" />}
-      {guest.childAge === "age3to12" && <PersonStanding className="h-3 w-3 flex-shrink-0 text-sky-400" />}
+      {guest.childAgeId && <Baby className="h-3 w-3 flex-shrink-0 text-sky-400" />}
       {guest.highChair && <Armchair className="h-3 w-3 flex-shrink-0 text-amber-600" />}
     </>
   );
@@ -36,10 +38,20 @@ export function TableElement({
   onSeatClick: (seatId: string) => void;
   onDropGuestOnSeat: (seatId: string, guestId: string) => void;
 }) {
+  const { plan } = usePlan();
   const [tableTooltipPos, setTableTooltipPos] = useState<{ x: number; y: number } | null>(null);
   const [hoveredSeatId, setHoveredSeatId] = useState<string | null>(null);
   const seatPositions = computeSeatPositions(table.shape, table.width, table.height, table.seats);
   const isCircle = table.shape === "circle";
+
+  const childAgeLabelById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const c of plan.childAgeCategories) map.set(c.id, c.label);
+    return map;
+  }, [plan.childAgeCategories]);
+
+  const childAgeLabelFor = (guest: Guest | undefined): string | undefined =>
+    guest?.childAgeId ? childAgeLabelById.get(guest.childAgeId) : undefined;
 
   const seatedGuests = table.seats
     .map((seat) => (seat.guestId ? guestsById.get(seat.guestId) : undefined))
@@ -99,6 +111,7 @@ export function TableElement({
               guest={seat.guestId ? guestsById.get(seat.guestId) : undefined}
               x={0}
               y={0}
+              childAgeLabel={childAgeLabelFor(seat.guestId ? guestsById.get(seat.guestId) : undefined)}
               onClick={() => onSeatClick(seat.id)}
               onDropGuest={(guestId) => onDropGuestOnSeat(seat.id, guestId)}
               onHoverChange={(hovering) => setHoveredSeatId(hovering ? seat.id : null)}
@@ -150,6 +163,7 @@ export function TableElement({
               seat={seat}
               guest={seat.guestId ? guestsById.get(seat.guestId) : undefined}
               tableName={table.name}
+              childAgeLabel={childAgeLabelFor(seat.guestId ? guestsById.get(seat.guestId) : undefined)}
             />
           </div>
         );

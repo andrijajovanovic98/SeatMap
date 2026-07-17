@@ -1,5 +1,5 @@
 import { TranslationKey } from "@/lib/translations";
-import { CHILD_AGE_LABEL_KEYS, SeatingPlan } from "@/types/seating";
+import { SeatingPlan } from "@/types/seating";
 import * as XLSX from "xlsx";
 
 type Translate = (key: TranslationKey, params?: Record<string, string | number>) => string;
@@ -24,12 +24,16 @@ export function buildGuestXlsx(plan: SeatingPlan, t: Translate): Blob {
   const no = t("csv.no");
   const empty = "-";
 
+  const childAgeLabelById = new Map(plan.childAgeCategories.map((c) => [c.id, c.label]));
+
   const header = [
     t("csv.header.name"),
     t("csv.header.table"),
     t("csv.header.seat"),
     t("csv.header.gluten"),
     t("csv.header.lactose"),
+    t("csv.header.vegan"),
+    t("csv.header.vegetarian"),
     t("csv.header.otherAllergy"),
     t("csv.header.childAge"),
     t("csv.header.highChair"),
@@ -44,8 +48,10 @@ export function buildGuestXlsx(plan: SeatingPlan, t: Translate): Blob {
       seatInfo ? seatInfo.seat : empty,
       guest.glutenFree ? yes : no,
       guest.lactoseFree ? yes : no,
+      guest.vegan ? yes : no,
+      guest.vegetarian ? yes : no,
       guest.otherAllergy ? yes : no,
-      guest.childAge ? t(CHILD_AGE_LABEL_KEYS[guest.childAge]) : empty,
+      guest.childAgeId ? childAgeLabelById.get(guest.childAgeId) ?? empty : empty,
       guest.highChair ? yes : no,
       guest.note ?? "",
     ];
