@@ -11,6 +11,7 @@ export type SeatPosition = {
  * Circle: seats evenly spaced around the perimeter.
  * Rectangle: seats along the two longer (top/bottom) sides.
  * Long: seats along the two long sides.
+ * Long one-sided: all seats along the top side only (e.g. a wedding head table).
  */
 export function computeSeatPositions(
   shape: TableShape,
@@ -33,10 +34,6 @@ export function computeSeatPositions(
     });
   }
 
-  // rectangle / long: distribute along top and bottom edges
-  const perSide = Math.ceil(count / 2);
-  const topCount = perSide;
-  const bottomCount = count - perSide;
   const positions: SeatPosition[] = [];
   const margin = 24;
 
@@ -48,6 +45,17 @@ export function computeSeatPositions(
       positions.push({ seat, x, y: edgeY });
     }
   };
+
+  if (shape === "longOneSided") {
+    // all seats along the top edge only, e.g. a wedding head table
+    placeOnEdge(count, -height / 2 - margin, 0);
+    return positions;
+  }
+
+  // rectangle / long: distribute along top and bottom edges
+  const perSide = Math.ceil(count / 2);
+  const topCount = perSide;
+  const bottomCount = count - perSide;
 
   placeOnEdge(topCount, -height / 2 - margin, 0);
   placeOnEdge(bottomCount, height / 2 + margin, topCount);
