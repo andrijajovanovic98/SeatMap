@@ -8,11 +8,11 @@ import { PlanProvider } from "@/context/PlanContext";
 export default function SeatFlowRoot() {
   return (
     <LanguageProvider>
-      <CommentProvider>
-        <PlanProvider>
+      <PlanProvider>
+        <CommentProvider>
           <SeatFlowApp />
-        </PlanProvider>
-      </CommentProvider>
+        </CommentProvider>
+      </PlanProvider>
     </LanguageProvider>
   );
 }

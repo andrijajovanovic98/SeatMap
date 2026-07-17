@@ -1,16 +1,17 @@
 "use client";
 
 import { CommentsDialog } from "@/components/CommentsDialog";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { EventSwitcher } from "@/components/EventSwitcher";
 import { ExportImportDialog } from "@/components/ExportImportDialog";
+import { SettingsDialog } from "@/components/SettingsDialog";
+import { ShareDialog } from "@/components/ShareDialog";
 import { SaveIndicator } from "@/components/SaveIndicator";
 import { StatsBar } from "@/components/StatsBar";
 import { useComments } from "@/context/CommentContext";
 import { usePlan } from "@/context/PlanContext";
 import { useLanguage } from "@/context/LanguageContext";
-import { createDemoPlan } from "@/lib/demoPlan";
-import { clearPlan, savePlan } from "@/lib/storage";
-import { FileDown, LayoutGrid, LogOut, MessageSquare, Menu, Plus, Printer, Save } from "lucide-react";
+import { saveEvent } from "@/lib/storage";
+import { FileDown, LayoutGrid, LogOut, MessageSquare, Menu, Plus, Printer, Save, Settings, Share2 } from "lucide-react";
 import { useState } from "react";
 
 export function AppHeader({
@@ -20,18 +21,13 @@ export function AppHeader({
   onOpenGuestList?: () => void;
   onOpenToolbar?: () => void;
 }) {
-  const { plan, dispatch, saveStatus, replacePlan } = usePlan();
+  const { plan, saveStatus, createEvent } = usePlan();
   const { language, setLanguage, t } = useLanguage();
   const { unseenCount } = useComments();
-  const [showNewConfirm, setShowNewConfirm] = useState(false);
   const [showExportImport, setShowExportImport] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showShare, setShowShare] = useState(false);
   const [showComments, setShowComments] = useState(false);
-
-  const handleNewPlan = () => {
-    clearPlan();
-    replacePlan(createDemoPlan());
-    setShowNewConfirm(false);
-  };
 
   const handlePrint = () => {
     window.print();
@@ -60,12 +56,7 @@ export function AppHeader({
         <span className="text-lg font-bold tracking-tight">{t("app.name")}</span>
       </div>
 
-      <input
-        value={plan.eventName}
-        onChange={(e) => dispatch({ type: "SET_EVENT_NAME", name: e.target.value })}
-        className="min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 py-1 text-sm font-medium text-gray-700 hover:border-gray-200 focus:border-indigo-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100 sm:max-w-xs"
-        aria-label={t("app.eventNameAriaLabel")}
-      />
+      <EventSwitcher />
 
       <div className="hidden md:block">
         <StatsBar />
@@ -103,11 +94,11 @@ export function AppHeader({
           {t("header.guests")}
         </button>
         <button
-          onClick={() => setShowNewConfirm(true)}
+          onClick={() => createEvent(t("events.newEvent.defaultName"))}
           className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100"
         >
           <Plus className="h-4 w-4" />
-          <span className="hidden sm:inline">{t("header.newPlan")}</span>
+          <span className="hidden sm:inline">{t("events.newEvent")}</span>
         </button>
         <button
           onClick={() => setShowExportImport(true)}
@@ -117,6 +108,21 @@ export function AppHeader({
           <span className="hidden sm:inline">{t("header.exportImport")}</span>
         </button>
         <button
+          onClick={() => setShowShare(true)}
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100"
+        >
+          <Share2 className="h-4 w-4" />
+          <span className="hidden sm:inline">{t("header.share")}</span>
+        </button>
+        <button
+          onClick={() => setShowSettings(true)}
+          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+          aria-label={t("header.settings")}
+          title={t("header.settings")}
+        >
+          <Settings className="h-4 w-4" />
+        </button>
+        <button
           onClick={handlePrint}
           className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100"
         >
@@ -124,7 +130,7 @@ export function AppHeader({
           <span className="hidden sm:inline">{t("header.print")}</span>
         </button>
         <button
-          onClick={() => savePlan(plan)}
+          onClick={() => saveEvent(plan)}
           className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
         >
           <Save className="h-4 w-4" />
@@ -153,17 +159,9 @@ export function AppHeader({
         </button>
       </div>
 
-      <ConfirmDialog
-        open={showNewConfirm}
-        title={t("header.newPlan.title")}
-        message={t("header.newPlan.message")}
-        confirmLabel={t("header.newPlan.confirm")}
-        danger
-        onConfirm={handleNewPlan}
-        onCancel={() => setShowNewConfirm(false)}
-      />
-
       {showExportImport && <ExportImportDialog onClose={() => setShowExportImport(false)} />}
+      {showSettings && <SettingsDialog onClose={() => setShowSettings(false)} />}
+      {showShare && <ShareDialog onClose={() => setShowShare(false)} />}
       {showComments && <CommentsDialog onClose={() => setShowComments(false)} />}
     </header>
   );

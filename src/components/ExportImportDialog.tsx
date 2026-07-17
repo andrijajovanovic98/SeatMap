@@ -2,14 +2,15 @@
 
 import { useLanguage } from "@/context/LanguageContext";
 import { usePlan } from "@/context/PlanContext";
+import { generateId } from "@/lib/id";
 import { buildGuestXlsx } from "@/lib/xlsxExport";
-import { isValidPlan } from "@/lib/storage";
+import { isValidPlan, migratePlan } from "@/lib/storage";
 import { SeatingPlan } from "@/types/seating";
 import { Download, FileSpreadsheet, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 
 export function ExportImportDialog({ onClose }: { onClose: () => void }) {
-  const { plan, replacePlan } = usePlan();
+  const { plan, addEvent } = usePlan();
   const { t } = useLanguage();
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -52,7 +53,9 @@ export function ExportImportDialog({ onClose }: { onClose: () => void }) {
         setError(t("exportImport.invalidFile"));
         return;
       }
-      replacePlan(data as SeatingPlan);
+      // Import as a NEW event (fresh id) so it never overwrites an existing one.
+      const imported = { ...migratePlan(data as SeatingPlan), id: generateId("event") };
+      addEvent(imported);
       onClose();
     } catch {
       setError(t("exportImport.unreadableFile"));

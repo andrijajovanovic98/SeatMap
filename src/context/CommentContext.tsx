@@ -1,9 +1,9 @@
 "use client";
 
+import { usePlan } from "@/context/PlanContext";
 import { generateId } from "@/lib/id";
+import { commentsKey } from "@/lib/storage";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-
-const COMMENTS_STORAGE_KEY = "seatflow.comments.v1";
 
 export type Comment = {
   id: string;
@@ -23,9 +23,10 @@ type CommentContextValue = {
 
 const CommentContext = createContext<CommentContextValue | null>(null);
 
-function loadComments(): Comment[] {
+function loadComments(eventId: string): Comment[] {
+  if (typeof window === "undefined") return [];
   try {
-    const raw = window.localStorage.getItem(COMMENTS_STORAGE_KEY);
+    const raw = window.localStorage.getItem(commentsKey(eventId));
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
@@ -35,12 +36,18 @@ function loadComments(): Comment[] {
   }
 }
 
-export function CommentProvider({ children }: { children: React.ReactNode }) {
-  const [comments, setComments] = useState<Comment[]>(() => loadComments());
+/**
+ * Inner provider: its state is seeded from the given event's comments and persists
+ * back to that event's key. Remounted (via `key`) whenever the active event changes,
+ * so switching events cleanly reloads the right comment set with no effect-driven setState.
+ */
+function CommentProviderInner({ eventId, children }: { eventId: string; children: React.ReactNode }) {
+  const [comments, setComments] = useState<Comment[]>(() => loadComments(eventId));
 
   useEffect(() => {
-    window.localStorage.setItem(COMMENTS_STORAGE_KEY, JSON.stringify(comments));
-  }, [comments]);
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(commentsKey(eventId), JSON.stringify(comments));
+  }, [comments, eventId]);
 
   const addComment = useCallback((text: string) => {
     const trimmed = text.trim();
@@ -74,6 +81,15 @@ export function CommentProvider({ children }: { children: React.ReactNode }) {
     >
       {children}
     </CommentContext.Provider>
+  );
+}
+
+export function CommentProvider({ children }: { children: React.ReactNode }) {
+  const { activeEventId } = usePlan();
+  return (
+    <CommentProviderInner key={activeEventId} eventId={activeEventId}>
+      {children}
+    </CommentProviderInner>
   );
 }
 
