@@ -54,9 +54,16 @@ export type PlanAction =
 const ROOM_MARGIN = 0;
 export const MIN_ROOM_SIZE = { width: 400, height: 300 };
 
-function clampToRoom(item: { x: number; y: number; width: number; height: number }, room: { width: number; height: number }) {
-  const halfW = item.width / 2;
-  const halfH = item.height / 2;
+function clampToRoom(
+  item: { x: number; y: number; width: number; height: number; rotation?: number },
+  room: { width: number; height: number }
+) {
+  // Use the rotated bounding box so a rotated table can sit flush against a wall.
+  const rad = ((item.rotation ?? 0) * Math.PI) / 180;
+  const cos = Math.abs(Math.cos(rad));
+  const sin = Math.abs(Math.sin(rad));
+  const halfW = (item.width * cos + item.height * sin) / 2;
+  const halfH = (item.width * sin + item.height * cos) / 2;
   return {
     x: Math.min(Math.max(item.x, halfW + ROOM_MARGIN), room.width - halfW - ROOM_MARGIN),
     y: Math.min(Math.max(item.y, halfH + ROOM_MARGIN), room.height - halfH - ROOM_MARGIN),
@@ -215,8 +222,14 @@ export function planReducer(plan: SeatingPlan, action: PlanAction): SeatingPlan 
       return updateAnyItem(plan, action.id, (it) => ({ ...it, width, height, x: pos.x, y: pos.y }));
     }
 
-    case "ROTATE_ITEM":
-      return updateAnyItem(plan, action.id, (it) => ({ ...it, rotation: ((action.rotation % 360) + 360) % 360 }));
+    case "ROTATE_ITEM": {
+      const rotation = ((action.rotation % 360) + 360) % 360;
+      return updateAnyItem(plan, action.id, (it) => {
+        // Re-clamp with the new rotation so a rotated item stays inside the room.
+        const pos = clampToRoom({ ...it, rotation }, plan.room);
+        return { ...it, rotation, x: pos.x, y: pos.y };
+      });
+    }
 
     case "RENAME_ITEM":
       return updateAnyItem(plan, action.id, (it) => ({ ...it, name: action.name }));

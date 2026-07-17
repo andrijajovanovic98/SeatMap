@@ -51,9 +51,14 @@ export function TableElement({
     .map((seat) => (seat.guestId ? guestsById.get(seat.guestId) : undefined))
     .filter((guest): guest is Guest => Boolean(guest));
 
+  // While a tooltip is showing, lift the whole table above sibling tables/seats so
+  // the tooltip is never hidden behind a neighbouring element (z-index only applies
+  // relative to siblings, so it must live on the table's own container).
+  const tooltipActive = tableTooltipPos !== null || hoveredSeatId !== null;
+
   return (
     <div
-      className="absolute"
+      className={`absolute ${tooltipActive ? "z-40" : ""}`}
       style={{
         left: table.x,
         top: table.y,
