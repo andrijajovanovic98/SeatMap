@@ -1,18 +1,19 @@
 "use client";
 
-import { PrintView } from "@/components/PrintView";
+import { ReadOnlyCanvas } from "@/components/ReadOnlyCanvas";
 import { LanguageProvider, useLanguage } from "@/context/LanguageContext";
 import { SeatingPlan } from "@/types/seating";
 import { Eye } from "lucide-react";
 
-function ViewHeader() {
+function ViewHeader({ eventName }: { eventName: string }) {
   const { language, setLanguage, t } = useLanguage();
   return (
-    <header className="mb-6 flex flex-wrap items-center gap-3 border-b border-gray-200 pb-3">
-      <div className="flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700">
+    <header className="flex flex-shrink-0 flex-wrap items-center gap-3 border-b border-gray-200 bg-white px-4 py-2.5 shadow-sm">
+      <span className="flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700">
         <Eye className="h-3.5 w-3.5" />
         {t("share.viewOnlyBadge")}
-      </div>
+      </span>
+      <span className="min-w-0 truncate text-sm font-semibold text-gray-700">{eventName}</span>
       <div
         className="ml-auto flex items-center rounded-lg border border-gray-200 p-0.5 text-xs font-medium"
         role="group"
@@ -42,9 +43,11 @@ function ViewHeader() {
 export function SharedPlanView({ plan }: { plan: SeatingPlan }) {
   return (
     <LanguageProvider>
-      <div className="mx-auto max-w-5xl px-4 py-6">
-        <ViewHeader />
-        <PrintView plan={plan} screen />
+      <div className="flex h-dvh flex-col">
+        <ViewHeader eventName={plan.eventName} />
+        <div className="relative flex-1 overflow-hidden">
+          <ReadOnlyCanvas plan={plan} />
+        </div>
       </div>
     </LanguageProvider>
   );

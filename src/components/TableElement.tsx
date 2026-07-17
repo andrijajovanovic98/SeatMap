@@ -1,11 +1,10 @@
 "use client";
 
 import { SeatElement, SeatTooltipContent } from "@/components/SeatElement";
-import { usePlan } from "@/context/PlanContext";
 import { computeSeatPositions } from "@/lib/seatLayout";
 import { Guest, TableItem } from "@/types/seating";
 import { AlertTriangle, Armchair, Baby, MilkOff, Salad, Sprout, WheatOff } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 function GuestNoticeIcons({ guest }: { guest: Guest }) {
   return (
@@ -24,7 +23,8 @@ function GuestNoticeIcons({ guest }: { guest: Guest }) {
 export function TableElement({
   table,
   guestsById,
-  selected,
+  childAgeLabelById,
+  selected = false,
   onSelect,
   onPointerDownDrag,
   onSeatClick,
@@ -32,23 +32,17 @@ export function TableElement({
 }: {
   table: TableItem;
   guestsById: Map<string, Guest>;
-  selected: boolean;
-  onSelect: () => void;
-  onPointerDownDrag: (e: React.PointerEvent) => void;
-  onSeatClick: (seatId: string) => void;
-  onDropGuestOnSeat: (seatId: string, guestId: string) => void;
+  childAgeLabelById: Map<string, string>;
+  selected?: boolean;
+  onSelect?: () => void;
+  onPointerDownDrag?: (e: React.PointerEvent) => void;
+  onSeatClick?: (seatId: string) => void;
+  onDropGuestOnSeat?: (seatId: string, guestId: string) => void;
 }) {
-  const { plan } = usePlan();
   const [tableTooltipPos, setTableTooltipPos] = useState<{ x: number; y: number } | null>(null);
   const [hoveredSeatId, setHoveredSeatId] = useState<string | null>(null);
   const seatPositions = computeSeatPositions(table.shape, table.width, table.height, table.seats);
   const isCircle = table.shape === "circle";
-
-  const childAgeLabelById = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const c of plan.childAgeCategories) map.set(c.id, c.label);
-    return map;
-  }, [plan.childAgeCategories]);
 
   const childAgeLabelFor = (guest: Guest | undefined): string | undefined =>
     guest?.childAgeId ? childAgeLabelById.get(guest.childAgeId) : undefined;
@@ -70,17 +64,19 @@ export function TableElement({
     >
       <div
         onPointerDown={(e) => {
-          onSelect();
-          onPointerDownDrag(e);
+          onSelect?.();
+          onPointerDownDrag?.(e);
         }}
         onMouseEnter={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
           setTableTooltipPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
         }}
         onMouseLeave={() => setTableTooltipPos(null)}
-        className={`relative flex h-full w-full cursor-grab items-center justify-center border-2 shadow-sm active:cursor-grabbing ${
-          isCircle ? "rounded-full" : "rounded-lg"
-        } ${selected ? "border-indigo-500 ring-2 ring-indigo-300" : "border-gray-300"}`}
+        className={`relative flex h-full w-full items-center justify-center border-2 shadow-sm ${
+          onPointerDownDrag ? "cursor-grab active:cursor-grabbing" : "cursor-default"
+        } ${isCircle ? "rounded-full" : "rounded-lg"} ${
+          selected ? "border-indigo-500 ring-2 ring-indigo-300" : "border-gray-300"
+        }`}
         style={{ backgroundColor: table.color, opacity: 0.85 }}
       >
         <span
@@ -112,8 +108,8 @@ export function TableElement({
               x={0}
               y={0}
               childAgeLabel={childAgeLabelFor(seat.guestId ? guestsById.get(seat.guestId) : undefined)}
-              onClick={() => onSeatClick(seat.id)}
-              onDropGuest={(guestId) => onDropGuestOnSeat(seat.id, guestId)}
+              onClick={onSeatClick ? () => onSeatClick(seat.id) : undefined}
+              onDropGuest={onDropGuestOnSeat ? (guestId) => onDropGuestOnSeat(seat.id, guestId) : undefined}
               onHoverChange={(hovering) => setHoveredSeatId(hovering ? seat.id : null)}
             />
           </div>

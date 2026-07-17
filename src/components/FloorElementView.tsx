@@ -5,27 +5,28 @@ import { FLOOR_ELEMENT_LABEL_KEYS, FloorElementItem } from "@/types/seating";
 
 export function FloorElementView({
   element,
-  selected,
+  selected = false,
   onSelect,
   onPointerDownDrag,
 }: {
   element: FloorElementItem;
-  selected: boolean;
-  onSelect: () => void;
-  onPointerDownDrag: (e: React.PointerEvent) => void;
+  selected?: boolean;
+  onSelect?: () => void;
+  onPointerDownDrag?: (e: React.PointerEvent) => void;
 }) {
   const { t } = useLanguage();
   const isText = element.type === "text";
+  const interactive = Boolean(onPointerDownDrag);
 
   return (
     <div
       onPointerDown={(e) => {
-        onSelect();
-        onPointerDownDrag(e);
+        onSelect?.();
+        onPointerDownDrag?.(e);
       }}
-      className={`absolute flex cursor-grab items-center justify-center rounded-lg border-2 border-dashed shadow-sm active:cursor-grabbing ${
-        selected ? "border-indigo-500 ring-2 ring-indigo-300" : "border-gray-400"
-      }`}
+      className={`absolute flex items-center justify-center rounded-lg border-2 border-dashed shadow-sm ${
+        interactive ? "cursor-grab active:cursor-grabbing" : "cursor-default"
+      } ${selected ? "border-indigo-500 ring-2 ring-indigo-300" : "border-gray-400"}`}
       style={{
         left: element.x,
         top: element.y,

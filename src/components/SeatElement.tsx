@@ -79,7 +79,7 @@ export function SeatElement({
   x: number;
   y: number;
   childAgeLabel?: string;
-  onClick: () => void;
+  onClick?: () => void;
   onDropGuest?: (guestId: string) => void;
   onHoverChange?: (hovering: boolean) => void;
 }) {
@@ -116,7 +116,7 @@ export function SeatElement({
       type="button"
       onClick={(e) => {
         e.stopPropagation();
-        onClick();
+        onClick?.();
       }}
       onMouseEnter={() => onHoverChange?.(true)}
       onMouseLeave={() => onHoverChange?.(false)}
