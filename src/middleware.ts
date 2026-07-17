@@ -16,7 +16,11 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // Protect everything except the login page, the auth API routes, Next internals,
-  // and public static assets.
-  matcher: ["/((?!login|api/login|api/logout|_next/static|_next/image|favicon.ico|robots.txt|.*\\.svg$).*)"],
+  // Protect everything except the login page, the public read-only share pages,
+  // the auth API routes, Next internals, and public static assets.
+  // Note: `share` (the public /share/[id] view) is excluded, but `api/share`
+  // (the upload endpoint) is intentionally NOT — only the logged-in owner can create links.
+  matcher: [
+    "/((?!login|share|api/login|api/logout|_next/static|_next/image|favicon.ico|robots.txt|.*\\.svg$).*)",
+  ],
 };
