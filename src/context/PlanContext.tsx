@@ -3,6 +3,8 @@
 import { createBlankPlan, createDemoPlan } from "@/lib/demoPlan";
 import { PlanAction, planReducer } from "@/lib/planReducer";
 import {
+  applyAccountData,
+  collectAccountData,
   deleteEvent as deleteEventStorage,
   getEventShareId,
   loadActiveEventId,
@@ -25,11 +27,13 @@ import {
 } from "react";
 
 export type SaveStatus = "idle" | "saving" | "saved";
+export type SyncStatus = "synced" | "syncing" | "offline";
 
 type PlanContextValue = {
   plan: SeatingPlan;
   dispatch: (action: PlanAction) => void;
   saveStatus: SaveStatus;
+  syncStatus: SyncStatus;
   undo: () => void;
   canUndo: boolean;
   selectedId: string | null;
@@ -42,12 +46,16 @@ type PlanContextValue = {
   addEvent: (plan: SeatingPlan) => void;
   deleteEvent: (id: string) => void;
   setEventShareId: (id: string, shareId: string | undefined) => void;
+  /** Ask the provider to push the whole account to the server (debounced). */
+  requestSync: () => void;
 };
 
 const PlanContext = createContext<PlanContextValue | null>(null);
 
 const HISTORY_LIMIT = 50;
 const SAVE_DEBOUNCE_MS = 500;
+const SYNC_DEBOUNCE_MS = 1500;
+const SYNC_RETRY_MS = 15000;
 
 /** Resolves the initial plan + events index, running the one-time legacy migration. */
 function bootstrap(): { plan: SeatingPlan; events: EventMeta[] } {
@@ -80,9 +88,12 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
   const [activeEventId, setActiveEventId] = useState<string>(initialPlan.id);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>("synced");
   const [canUndo, setCanUndo] = useState(false);
   const historyRef = useRef<SeatingPlan[]>([]);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isFirstRender = useRef(true);
   // Always-current plan ref so switch/delete can flush without stale closures.
   const planRef = useRef(plan);
@@ -112,7 +123,54 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  // Debounced autosave of the active plan to its own key (also refreshes the index row).
+  // --- Server sync ---------------------------------------------------------
+
+  // Holds the latest pushToServer so the retry timer can call it without a
+  // self-referential closure (keeps the callback stable).
+  const pushRef = useRef<() => void>(() => {});
+
+  /** Pushes the whole account (from the local cache) to the server. */
+  const pushToServer = useCallback(async () => {
+    if (retryTimerRef.current) {
+      clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
+    setSyncStatus("syncing");
+    try {
+      const account = collectAccountData();
+      const res = await fetch("/api/events", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(account),
+      });
+      if (!res.ok) throw new Error("sync_failed");
+      setSyncStatus("synced");
+    } catch {
+      // Offline / server error: keep working from the local cache, retry later.
+      setSyncStatus("offline");
+      if (!retryTimerRef.current) {
+        retryTimerRef.current = setTimeout(() => {
+          retryTimerRef.current = null;
+          pushRef.current();
+        }, SYNC_RETRY_MS);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    pushRef.current = pushToServer;
+  }, [pushToServer]);
+
+  /** Debounced request to push the account to the server. */
+  const requestSync = useCallback(() => {
+    if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
+    syncTimerRef.current = setTimeout(() => {
+      pushToServer();
+    }, SYNC_DEBOUNCE_MS);
+  }, [pushToServer]);
+
+  // Debounced autosave of the active plan to its own key (also refreshes the index
+  // row) and requests a server sync of the whole account.
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
@@ -125,11 +183,55 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
       saveEvent(stamped);
       setEvents(loadEventsIndex());
       setSaveStatus("saved");
+      requestSync();
     }, SAVE_DEBOUNCE_MS);
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
-  }, [plan]);
+  }, [plan, requestSync]);
+
+  // On mount: the server is the source of truth. Load it into the local cache,
+  // or push the current local cache up if the account is empty (first ever sync).
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/events");
+        if (!res.ok) throw new Error("load_failed");
+        const data = (await res.json()) as {
+          ok: boolean;
+          account: import("@/types/seating").AccountData | null;
+        };
+        if (cancelled) return;
+        if (data.account && data.account.events.length > 0) {
+          // Server wins: mirror into the local cache, then re-read into state.
+          applyAccountData(data.account);
+          const events = loadEventsIndex();
+          const activeId = loadActiveEventId() ?? events[0]?.id;
+          const nextPlan = activeId ? loadEvent(activeId) : null;
+          if (nextPlan) {
+            setEvents(events);
+            setActiveEventId(nextPlan.id);
+            historyRef.current = [];
+            setCanUndo(false);
+            setSelectedId(null);
+            setPlan(nextPlan);
+          }
+          setSyncStatus("synced");
+        } else {
+          // Empty account: push the current local cache up so nothing is lost.
+          await pushToServer();
+        }
+      } catch {
+        if (!cancelled) setSyncStatus("offline");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // Run once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /** Immediately persist the current plan (used before switching away). */
   const flush = useCallback(() => {
@@ -154,8 +256,9 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
       setActiveEventId(id);
       loadInto(next);
       setEvents(loadEventsIndex());
+      requestSync();
     },
-    [activeEventId, flush, loadInto]
+    [activeEventId, flush, loadInto, requestSync]
   );
 
   const addEvent = useCallback(
@@ -166,8 +269,9 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
       setActiveEventId(next.id);
       loadInto(next);
       setEvents(loadEventsIndex());
+      requestSync();
     },
-    [flush, loadInto]
+    [flush, loadInto, requestSync]
   );
 
   const createEvent = useCallback(
@@ -189,6 +293,7 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
 
       if (id !== activeEventId) {
         setEvents(remaining);
+        requestSync();
         return;
       }
 
@@ -201,6 +306,7 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
           setActiveEventId(nextId);
           loadInto(next);
           setEvents(remaining);
+          requestSync();
           return;
         }
       }
@@ -210,13 +316,26 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
       setActiveEventId(demo.id);
       loadInto(demo);
       setEvents(loadEventsIndex());
+      requestSync();
     },
-    [activeEventId, loadInto]
+    [activeEventId, loadInto, requestSync]
   );
 
-  const setEventShareId = useCallback((id: string, shareId: string | undefined) => {
-    setEventShareIdStorage(id, shareId);
-    setEvents(loadEventsIndex());
+  const setEventShareId = useCallback(
+    (id: string, shareId: string | undefined) => {
+      setEventShareIdStorage(id, shareId);
+      setEvents(loadEventsIndex());
+      requestSync();
+    },
+    [requestSync]
+  );
+
+  // Clean up any pending sync/retry timers on unmount.
+  useEffect(() => {
+    return () => {
+      if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
+      if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
+    };
   }, []);
 
   const value = useMemo<PlanContextValue>(
@@ -224,6 +343,7 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
       plan,
       dispatch,
       saveStatus,
+      syncStatus,
       undo,
       canUndo,
       selectedId,
@@ -235,11 +355,13 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
       addEvent,
       deleteEvent,
       setEventShareId,
+      requestSync,
     }),
     [
       plan,
       dispatch,
       saveStatus,
+      syncStatus,
       undo,
       canUndo,
       selectedId,
@@ -250,6 +372,7 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
       addEvent,
       deleteEvent,
       setEventShareId,
+      requestSync,
     ]
   );
 

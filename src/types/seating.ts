@@ -94,6 +94,26 @@ export type EventMeta = {
   shareId?: string;
 };
 
+/** A free-text comment/note attached to an event. */
+export type Comment = {
+  id: string;
+  text: string;
+  createdAt: string;
+  seen: boolean;
+};
+
+/**
+ * The whole account, stored server-side (Upstash Redis) under a fixed key.
+ * The server is the source of truth; localStorage is a cache mirror of this.
+ */
+export type AccountData = {
+  version: 1;
+  activeEventId: string | null;
+  events: SeatingPlan[];
+  comments: Record<string, Comment[]>; // eventId -> comments
+  updatedAt: string;
+};
+
 export const DEFAULT_ROOM_SIZE: RoomSize = { width: 1600, height: 1000 };
 
 /** Seed child-age categories for a fresh plan (labels are free text and user-editable). */

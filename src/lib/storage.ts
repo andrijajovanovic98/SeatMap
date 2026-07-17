@@ -1,6 +1,8 @@
 import { generateId } from "@/lib/id";
 import {
+  AccountData,
   ChildAgeCategory,
+  Comment,
   createDefaultChildAgeCategories,
   EventMeta,
   Guest,
@@ -184,6 +186,90 @@ export const LEGACY_COMMENTS_KEY = "seatflow.comments.v1";
 
 export function commentsKey(eventId: string): string {
   return `${COMMENTS_KEY_PREFIX}${eventId}`;
+}
+
+export function loadComments(eventId: string): Comment[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(commentsKey(eventId));
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveComments(eventId: string, comments: Comment[]) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(commentsKey(eventId), JSON.stringify(comments));
+  } catch {
+    // ignore
+  }
+}
+
+// --- Account aggregation (localStorage <-> server sync) -------------------
+
+/** Collects the whole account (all events + comments + active id) from localStorage. */
+export function collectAccountData(): AccountData {
+  const index = loadEventsIndex();
+  const events: SeatingPlan[] = [];
+  const comments: Record<string, Comment[]> = {};
+  for (const meta of index) {
+    const plan = loadEvent(meta.id);
+    if (plan) {
+      events.push(plan);
+      const c = loadComments(meta.id);
+      if (c.length) comments[meta.id] = c;
+    }
+  }
+  return {
+    version: 1,
+    activeEventId: loadActiveEventId(),
+    events,
+    comments,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+/** Overwrites the local cache with a server account document (server is source of truth). */
+export function applyAccountData(data: AccountData) {
+  if (typeof window === "undefined") return;
+  try {
+    // Remove any local events/comments not present on the server, then write the server set.
+    const localIndex = loadEventsIndex();
+    const serverIds = new Set(data.events.map((e) => e.id));
+    for (const meta of localIndex) {
+      if (!serverIds.has(meta.id)) {
+        window.localStorage.removeItem(eventKey(meta.id));
+        window.localStorage.removeItem(commentsKey(meta.id));
+      }
+    }
+
+    const index: EventMeta[] = [];
+    for (const plan of data.events) {
+      const migrated = migratePlan(plan);
+      window.localStorage.setItem(eventKey(migrated.id), JSON.stringify(migrated));
+      // Preserve any shareId the server carried for this event.
+      const priorShareId = localIndex.find((m) => m.id === migrated.id)?.shareId;
+      index.push({
+        id: migrated.id,
+        eventName: migrated.eventName,
+        updatedAt: migrated.updatedAt,
+        shareId: priorShareId,
+      });
+      saveComments(migrated.id, data.comments?.[migrated.id] ?? []);
+    }
+    saveEventsIndex(index);
+
+    const active = data.activeEventId && serverIds.has(data.activeEventId)
+      ? data.activeEventId
+      : index[0]?.id;
+    if (active) saveActiveEventId(active);
+  } catch {
+    // ignore — cache write is best-effort
+  }
 }
 
 // --- Migration from the legacy single-plan schema -------------------------

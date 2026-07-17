@@ -2,15 +2,11 @@
 
 import { usePlan } from "@/context/PlanContext";
 import { generateId } from "@/lib/id";
-import { commentsKey } from "@/lib/storage";
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { loadComments, saveComments } from "@/lib/storage";
+import { Comment } from "@/types/seating";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
-export type Comment = {
-  id: string;
-  text: string;
-  createdAt: string;
-  seen: boolean;
-};
+export type { Comment };
 
 type CommentContextValue = {
   comments: Comment[];
@@ -23,31 +19,32 @@ type CommentContextValue = {
 
 const CommentContext = createContext<CommentContextValue | null>(null);
 
-function loadComments(eventId: string): Comment[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(commentsKey(eventId));
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed;
-  } catch {
-    return [];
-  }
-}
-
 /**
  * Inner provider: its state is seeded from the given event's comments and persists
  * back to that event's key. Remounted (via `key`) whenever the active event changes,
  * so switching events cleanly reloads the right comment set with no effect-driven setState.
  */
-function CommentProviderInner({ eventId, children }: { eventId: string; children: React.ReactNode }) {
+function CommentProviderInner({
+  eventId,
+  requestSync,
+  children,
+}: {
+  eventId: string;
+  requestSync: () => void;
+  children: React.ReactNode;
+}) {
   const [comments, setComments] = useState<Comment[]>(() => loadComments(eventId));
+  const isFirst = useRef(true);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem(commentsKey(eventId), JSON.stringify(comments));
-  }, [comments, eventId]);
+    saveComments(eventId, comments);
+    // Don't trigger a server sync on the initial seed load, only on real edits.
+    if (isFirst.current) {
+      isFirst.current = false;
+      return;
+    }
+    requestSync();
+  }, [comments, eventId, requestSync]);
 
   const addComment = useCallback((text: string) => {
     const trimmed = text.trim();
@@ -85,9 +82,9 @@ function CommentProviderInner({ eventId, children }: { eventId: string; children
 }
 
 export function CommentProvider({ children }: { children: React.ReactNode }) {
-  const { activeEventId } = usePlan();
+  const { activeEventId, requestSync } = usePlan();
   return (
-    <CommentProviderInner key={activeEventId} eventId={activeEventId}>
+    <CommentProviderInner key={activeEventId} eventId={activeEventId} requestSync={requestSync}>
       {children}
     </CommentProviderInner>
   );

@@ -21,7 +21,7 @@ export function AppHeader({
   onOpenGuestList?: () => void;
   onOpenToolbar?: () => void;
 }) {
-  const { plan, saveStatus, createEvent } = usePlan();
+  const { plan, saveStatus, syncStatus, createEvent } = usePlan();
   const { language, setLanguage, t } = useLanguage();
   const { unseenCount } = useComments();
   const [showExportImport, setShowExportImport] = useState(false);
@@ -62,7 +62,7 @@ export function AppHeader({
         <StatsBar />
       </div>
 
-      <SaveIndicator status={saveStatus} />
+      <SaveIndicator status={saveStatus} syncStatus={syncStatus} />
 
       <div className="ml-auto flex items-center gap-1.5">
         <div

@@ -138,6 +138,10 @@ const dict = {
 
     "save.saving": "Mentés…",
     "save.saved": "Minden módosítás mentve",
+    "sync.syncing": "Szinkronizálás…",
+    "sync.synced": "Mentve a felhőbe",
+    "sync.offline": "Offline – helyben mentve",
+    "sync.offline.hint": "Nincs kapcsolat a szerverrel. A módosítások helyben elmentve, és automatikusan feltöltődnek, amint helyreáll a kapcsolat.",
 
     "exportImport.filenameFallback": "seatflow-terv",
     "exportImport.invalidFile":
@@ -369,6 +373,10 @@ const dict = {
 
     "save.saving": "Saving…",
     "save.saved": "All changes saved",
+    "sync.syncing": "Syncing…",
+    "sync.synced": "Saved to the cloud",
+    "sync.offline": "Offline – saved locally",
+    "sync.offline.hint": "No connection to the server. Your changes are saved locally and will upload automatically once the connection is restored.",
 
     "exportImport.filenameFallback": "seatflow-plan",
     "exportImport.invalidFile":
