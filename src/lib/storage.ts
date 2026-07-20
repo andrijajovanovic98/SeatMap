@@ -358,17 +358,25 @@ export function setCacheOwner(username: string) {
 }
 
 /**
- * Ensures the local cache belongs to `username`, wiping it when it belonged to
- * somebody else. Returns true when a wipe happened, so the caller knows the cache
- * is empty and must not be pushed to the server.
+ * Ensures the local cache belongs to `username`, discarding it otherwise. Returns
+ * true when a wipe happened, so the caller knows the cache no longer holds anything
+ * worth pushing to the server.
+ *
+ * An unlabelled cache holding data is treated as foreign, not as this user's: it was
+ * written either by the pre-multi-user build (where every login shared one account)
+ * or by a user whose label was cleared. Trusting it would let the sync path upload
+ * one account's plans into another's — which is exactly what it did before this
+ * check existed. An unlabelled *empty* cache is simply a first visit, so it is only
+ * labelled, not reported as a wipe.
  */
 export function claimCacheFor(username: string): boolean {
   const previous = getCacheOwner();
   if (previous === username) return false;
-  const hadOtherOwnersData = previous !== null;
-  if (hadOtherOwnersData) clearLocalAccount();
+
+  const foreign = previous !== null || loadEventsIndex().length > 0;
+  if (foreign) clearLocalAccount();
   setCacheOwner(username);
-  return hadOtherOwnersData;
+  return foreign;
 }
 
 // --- Sign-out cleanup -----------------------------------------------------
