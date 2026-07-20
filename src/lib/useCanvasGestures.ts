@@ -38,7 +38,14 @@ export type CanvasGestureOptions = {
   onDragStart?: (id: string) => void;
   /** Slop was never crossed. `null` means the background was tapped. */
   onTap?: (id: string | null) => void;
+  /** Two taps on the same item in quick succession, by touch or pen only. */
+  onDoubleTap?: (id: string) => void;
 };
+
+/** Longest gap between two taps that still reads as a double-tap. */
+const DOUBLE_TAP_MS = 300;
+/** How far the second tap may land from the first and still count as the same spot. */
+const DOUBLE_TAP_SLOP = 30;
 
 /**
  * Unified mouse and touch handling for the floor canvases: one-finger drag and pan,
@@ -64,9 +71,12 @@ export function useCanvasGestures({
   onMoveItem,
   onDragStart,
   onTap,
+  onDoubleTap,
 }: CanvasGestureOptions) {
   const pointers = useRef(new Map<number, Point>());
   const mode = useRef<"idle" | "pan" | "drag" | "pinch">("idle");
+  /** The previous tap, for double-tap detection. */
+  const lastTap = useRef<{ id: string; at: number; x: number; y: number } | null>(null);
 
   const dragRef = useRef<{
     id: string;
@@ -265,8 +275,28 @@ export function useCanvasGestures({
         // A cancelled gesture is not a tap: the browser took the pointer away, the
         // user did not choose to lift it.
         if (!cancelled) {
-          if (wasMode === "drag" && wasDrag && !wasDrag.moved) onTap?.(wasDrag.id);
-          else if (wasMode === "pan") onTap?.(null);
+          if (wasMode === "drag" && wasDrag && !wasDrag.moved) {
+            // Double-tap is touch-only: a mouse has a hover-driven side panel that
+            // does not cover the canvas, so desktop keeps single-click-to-open.
+            const previous = lastTap.current;
+            const isSecondTap =
+              e.pointerType !== "mouse" &&
+              previous !== null &&
+              previous.id === wasDrag.id &&
+              Date.now() - previous.at < DOUBLE_TAP_MS &&
+              Math.hypot(e.clientX - previous.x, e.clientY - previous.y) < DOUBLE_TAP_SLOP;
+
+            onTap?.(wasDrag.id);
+            if (isSecondTap) {
+              onDoubleTap?.(wasDrag.id);
+              lastTap.current = null; // a third tap starts a fresh pair
+            } else {
+              lastTap.current = { id: wasDrag.id, at: Date.now(), x: e.clientX, y: e.clientY };
+            }
+          } else if (wasMode === "pan") {
+            onTap?.(null);
+            lastTap.current = null;
+          }
         }
         mode.current = "idle";
         dragRef.current = null;
@@ -284,7 +314,7 @@ export function useCanvasGestures({
         mode.current = "pan";
       }
     },
-    [onTap]
+    [onDoubleTap, onTap]
   );
 
   // React attaches wheel passively at the root, so preventDefault() on the synthetic

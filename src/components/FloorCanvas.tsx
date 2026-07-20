@@ -11,7 +11,17 @@ import { Guest } from "@/types/seating";
 import { Minus, Plus, Maximize } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 
-export function FloorCanvas({ onSeatClick }: { onSeatClick: (seatId: string) => void }) {
+export function FloorCanvas({
+  onSeatClick,
+  onSelectionTap,
+  onItemDoubleTap,
+}: {
+  onSeatClick: (seatId: string) => void;
+  /** A tap that only changed the selection, so the mobile sheet can close itself. */
+  onSelectionTap?: () => void;
+  /** Touch-only: opens the mobile properties sheet, which a single tap no longer does. */
+  onItemDoubleTap?: (id: string) => void;
+}) {
   const { plan, dispatch, selectedId, setSelectedId } = usePlan();
   const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -87,7 +97,11 @@ export function FloorCanvas({ onSeatClick }: { onSeatClick: (seatId: string) => 
     // pointerdown: on mobile that opened the properties sheet over the canvas the
     // instant a finger touched a table — covering the very item being dragged.
     onDragStart: setSelectedId,
-    onTap: setSelectedId,
+    onTap: (id) => {
+      setSelectedId(id);
+      onSelectionTap?.();
+    },
+    onDoubleTap: onItemDoubleTap,
   });
 
   const [isPanning, setIsPanning] = useState(false);

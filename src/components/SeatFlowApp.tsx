@@ -18,6 +18,10 @@ export function SeatFlowApp() {
   const [activeSeatId, setActiveSeatId] = useState<string | null>(null);
   const [showToolbarDrawer, setShowToolbarDrawer] = useState(false);
   const [showGuestDrawer, setShowGuestDrawer] = useState(false);
+  // On touch the properties sheet covers most of the canvas, so a single tap only
+  // selects (showing the highlight) and a double tap opens the sheet. Desktop is
+  // unaffected: its panel sits beside the canvas and follows selectedId directly.
+  const [showPropertiesSheet, setShowPropertiesSheet] = useState(false);
   const [toolbarCollapsed, setToolbarCollapsed] = useState(false);
   const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
 
@@ -81,7 +85,13 @@ export function SeatFlowApp() {
         </div>
 
         <div className="relative flex-1 overflow-hidden">
-          <FloorCanvas onSeatClick={setActiveSeatId} />
+          <FloorCanvas
+            onSeatClick={setActiveSeatId}
+            // A single tap changing the selection closes the sheet, so it never shows
+            // a different item than the one just tapped.
+            onSelectionTap={() => setShowPropertiesSheet(false)}
+            onItemDoubleTap={() => setShowPropertiesSheet(true)}
+          />
         </div>
 
         <div
@@ -116,7 +126,14 @@ export function SeatFlowApp() {
 
       {showToolbarDrawer && (
         <MobileDrawer title={t("sidebar.elements")} onClose={() => setShowToolbarDrawer(false)}>
-          <EditorSidebar onItemAdded={() => setShowToolbarDrawer(false)} />
+          {/* Opening the sheet here is the confirmation that something was added: the
+              new item lands at room centre, which is often off-screen on a phone. */}
+          <EditorSidebar
+            onItemAdded={() => {
+              setShowToolbarDrawer(false);
+              setShowPropertiesSheet(true);
+            }}
+          />
         </MobileDrawer>
       )}
 
@@ -126,8 +143,10 @@ export function SeatFlowApp() {
         </MobileDrawer>
       )}
 
-      {selectedId && (
-        <MobilePropertiesSheet onClose={() => setSelectedId(null)} />
+      {selectedId && showPropertiesSheet && (
+        // Closing leaves the item selected: the sheet was covering the canvas, and
+        // dismissing it should not also undo the selection.
+        <MobilePropertiesSheet onClose={() => setShowPropertiesSheet(false)} />
       )}
 
       <div className="hidden print:block">
