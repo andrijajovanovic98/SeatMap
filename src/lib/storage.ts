@@ -19,6 +19,11 @@ export const EVENTS_INDEX_KEY = "seatflow.events.index.v1";
 export const ACTIVE_EVENT_KEY = "seatflow.events.active.v1";
 const EVENT_KEY_PREFIX = "seatflow.event.v1.";
 
+// Which user the cached plans belong to. Guards the case where two people share a
+// browser: without it, the mount-time sync would upload one user's leftover cache
+// into the next user's empty account.
+const CACHE_OWNER_KEY = "seatflow.cache.owner.v1";
+
 function eventKey(id: string): string {
   return `${EVENT_KEY_PREFIX}${id}`;
 }
@@ -330,4 +335,73 @@ export function migrateToMultiEvent(): string | null {
   }
 
   return legacyPlan.id;
+}
+
+// --- Cache ownership ------------------------------------------------------
+
+export function getCacheOwner(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return window.localStorage.getItem(CACHE_OWNER_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setCacheOwner(username: string) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(CACHE_OWNER_KEY, username);
+  } catch {
+    // storage unavailable; the sync path falls back to trusting the server copy
+  }
+}
+
+/**
+ * Ensures the local cache belongs to `username`, wiping it when it belonged to
+ * somebody else. Returns true when a wipe happened, so the caller knows the cache
+ * is empty and must not be pushed to the server.
+ */
+export function claimCacheFor(username: string): boolean {
+  const previous = getCacheOwner();
+  if (previous === username) return false;
+  const hadOtherOwnersData = previous !== null;
+  if (hadOtherOwnersData) clearLocalAccount();
+  setCacheOwner(username);
+  return hadOtherOwnersData;
+}
+
+// --- Sign-out cleanup -----------------------------------------------------
+
+/**
+ * Wipes every cached plan, index and comment in this browser.
+ * Called on logout: the cache belongs to whoever was signed in, and the next user
+ * on this browser must not inherit it — the mount-time sync uploads the local cache
+ * whenever the server account is empty, which would hand a new user the previous
+ * user's plans. The language preference and unrelated keys are left alone.
+ */
+export function clearLocalAccount() {
+  if (typeof window === "undefined") return;
+  try {
+    const doomed: string[] = [];
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const key = window.localStorage.key(i);
+      if (!key) continue;
+      if (
+        key === EVENTS_INDEX_KEY ||
+        key === ACTIVE_EVENT_KEY ||
+        key === CACHE_OWNER_KEY ||
+        key === LEGACY_PLAN_KEY ||
+        key === LEGACY_SHARE_ID_KEY ||
+        key === LEGACY_COMMENTS_KEY ||
+        key.startsWith(EVENT_KEY_PREFIX) ||
+        key.startsWith(COMMENTS_KEY_PREFIX)
+      ) {
+        doomed.push(key);
+      }
+    }
+    for (const key of doomed) window.localStorage.removeItem(key);
+  } catch {
+    // storage unavailable; nothing to clear
+  }
 }

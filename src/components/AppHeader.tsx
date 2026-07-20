@@ -10,9 +10,9 @@ import { StatsBar } from "@/components/StatsBar";
 import { useComments } from "@/context/CommentContext";
 import { usePlan } from "@/context/PlanContext";
 import { useLanguage } from "@/context/LanguageContext";
-import { saveEvent } from "@/lib/storage";
-import { FileDown, LayoutGrid, LogOut, MessageSquare, Menu, Plus, Printer, Save, Settings, Share2 } from "lucide-react";
-import { useState } from "react";
+import { clearLocalAccount, saveEvent } from "@/lib/storage";
+import { FileDown, LayoutGrid, LogOut, MessageSquare, Menu, Plus, Printer, Save, Settings, Share2, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export function AppHeader({
   onOpenGuestList,
@@ -28,6 +28,26 @@ export function AppHeader({
   const [showSettings, setShowSettings] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Decides whether to show the admin shortcut. Purely cosmetic: /api/users
+  // verifies the role server-side on every request.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/me");
+        if (!res.ok) return;
+        const data = (await res.json()) as { role?: string };
+        if (!cancelled) setIsAdmin(data.role === "admin");
+      } catch {
+        // offline or unauthenticated; leave the admin button hidden
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handlePrint = () => {
     window.print();
@@ -37,6 +57,9 @@ export function AppHeader({
     try {
       await fetch("/api/logout", { method: "POST" });
     } finally {
+      // Drop this browser's cached plans so the next user to sign in here starts
+      // from their own server-side account, not the previous user's leftovers.
+      clearLocalAccount();
       window.location.href = "/login";
     }
   };
@@ -149,6 +172,16 @@ export function AppHeader({
             </span>
           )}
         </button>
+        {isAdmin && (
+          <a
+            href="/admin"
+            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+            aria-label={t("header.users")}
+            title={t("header.users")}
+          >
+            <Users className="h-4 w-4" />
+          </a>
+        )}
         <button
           onClick={handleLogout}
           className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"

@@ -4,6 +4,7 @@ import { createBlankPlan, createDemoPlan } from "@/lib/demoPlan";
 import { PlanAction, planReducer } from "@/lib/planReducer";
 import {
   applyAccountData,
+  claimCacheFor,
   collectAccountData,
   deleteEvent as deleteEventStorage,
   getEventShareId,
@@ -196,6 +197,21 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
     (async () => {
       try {
+        // Establish who is signed in first. If this browser's cache belongs to a
+        // different user, drop it before the sync below could upload their plans
+        // into this account.
+        let cacheWasWiped = false;
+        try {
+          const meRes = await fetch("/api/me");
+          if (meRes.ok) {
+            const me = (await meRes.json()) as { username?: string };
+            if (me.username) cacheWasWiped = claimCacheFor(me.username);
+          }
+        } catch {
+          // Identity unknown: fall through and let the server copy win below.
+        }
+        if (cancelled) return;
+
         const res = await fetch("/api/events");
         if (!res.ok) throw new Error("load_failed");
         const data = (await res.json()) as {
@@ -217,6 +233,21 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
             setSelectedId(null);
             setPlan(nextPlan);
           }
+          setSyncStatus("synced");
+        } else if (cacheWasWiped) {
+          // The cache we just discarded belonged to someone else, so there is nothing
+          // of this user's to preserve. Starting empty is correct — uploading here
+          // would hand them the previous user's plans. State still holds the plan read
+          // from the old cache at init, so replace it with a fresh blank one.
+          const blank = createBlankPlan("Új rendezvény");
+          saveEvent(blank);
+          saveActiveEventId(blank.id);
+          setEvents(loadEventsIndex());
+          setActiveEventId(blank.id);
+          historyRef.current = [];
+          setCanUndo(false);
+          setSelectedId(null);
+          setPlan(blank);
           setSyncStatus("synced");
         } else {
           // Empty account: push the current local cache up so nothing is lost.

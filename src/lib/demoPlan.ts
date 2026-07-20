@@ -108,6 +108,23 @@ export function createDemoPlan(): SeatingPlan {
   };
 }
 
+/**
+ * The starting plan for a brand-new user: two empty tables so the canvas is not
+ * blank on first login, but no guests to clear out before real work begins.
+ */
+export function createStarterPlan(eventName: string): SeatingPlan {
+  return {
+    id: generateId("event"),
+    eventName,
+    room: DEFAULT_ROOM_SIZE,
+    tables: [makeTable("1. asztal", "circle", 260, 200), makeTable("2. asztal", "circle", 520, 200)],
+    floorElements: [],
+    guests: [],
+    childAgeCategories: createDefaultChildAgeCategories(),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
 /** Creates a fresh, empty event: just a default room and no tables/guests yet. */
 export function createBlankPlan(eventName: string): SeatingPlan {
   return {
