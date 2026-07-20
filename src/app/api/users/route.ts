@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { deleteAccount, saveAccount } from "@/lib/accountStore";
+import { deleteAccount, loadAccount, saveAccount } from "@/lib/accountStore";
 import { createStarterPlan } from "@/lib/demoPlan";
 import { getSession } from "@/lib/session";
 import {
@@ -72,19 +72,27 @@ export async function POST(req: Request) {
 
   try {
     const user = await createUser(username, password, role === "admin" ? "admin" : "user");
+
     // Seed the account server-side so the new user starts from a known two-table plan.
     // Without this their account reads as empty and the client would upload whatever
     // happens to sit in that browser's local cache — possibly a previous user's work.
     // Admins are provisioned for managing users rather than seating, so they get an
     // empty account instead of a starter plan they would only have to delete.
-    const starter = user.role === "admin" ? null : createStarterPlan("Új rendezvény");
-    await saveAccount(user.username, {
-      version: 1,
-      activeEventId: starter?.id ?? null,
-      events: starter ? [starter] : [],
-      comments: {},
-      updatedAt: new Date().toISOString(),
-    });
+    //
+    // Never seed over an account that already holds data: a username can already own
+    // events before its user record exists — e.g. promoting the env-credential login
+    // to a real user — and overwriting would destroy their plans.
+    const existing = await loadAccount(user.username);
+    if (!existing || existing.events.length === 0) {
+      const starter = user.role === "admin" ? null : createStarterPlan("Új rendezvény");
+      await saveAccount(user.username, {
+        version: 1,
+        activeEventId: starter?.id ?? null,
+        events: starter ? [starter] : [],
+        comments: {},
+        updatedAt: new Date().toISOString(),
+      });
+    }
     return NextResponse.json({ ok: true, user });
   } catch (err) {
     if (err instanceof Error && err.message === "user_exists") {

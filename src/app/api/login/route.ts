@@ -42,10 +42,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
   }
 
-  const expectedUsername = process.env.AUTH_USERNAME;
-  const expectedPassword = process.env.AUTH_PASSWORD;
+  // Only AUTH_SECRET is required now that real user records exist; the credential pair
+  // is consulted solely on the bootstrap path below and may be absent afterwards.
+  const expectedUsername = process.env.AUTH_USERNAME ?? "";
+  const expectedPassword = process.env.AUTH_PASSWORD ?? "";
   const secret = process.env.AUTH_SECRET;
-  if (!expectedUsername || !expectedPassword || !secret) {
+  if (!secret) {
     return NextResponse.json({ ok: false, error: "server_misconfigured" }, { status: 500 });
   }
 
@@ -59,9 +61,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "invalid_request" }, { status: 400 });
   }
 
-  // Authenticate against the user table first. Until an admin has created the first
-  // user, fall back to the AUTH_USERNAME/AUTH_PASSWORD env pair so the owner can always
-  // get in and bootstrap. Once users exist, the env pair still works as the admin login.
+  // Real user records are the only authority once any exist. The AUTH_USERNAME/
+  // AUTH_PASSWORD env pair is a one-time bootstrap: it grants admin *only* while the
+  // user table is empty, so the very first admin can be created. Leaving it live
+  // afterwards would be a standing admin backdoor whose holder never appears in the
+  // user list and cannot be revoked from the admin page.
   let subject: string;
   let role: SessionRole;
 
@@ -69,19 +73,24 @@ export async function POST(req: Request) {
   if (storedUser) {
     subject = storedUser.username;
     role = storedUser.role;
-    // If the bootstrap admin was later added to the user table, they still inherit the
-    // pre-multi-user plans. `adoptLegacyAccount` skips users who already have an account.
+    // A username can own plans from before it had a user record (the env login was
+    // keyed by the same name). Adopting is a no-op once they have their own account.
     if (subject === normalizeUsername(expectedUsername)) {
       await adoptLegacyAccount(subject).catch(() => undefined);
     }
-  } else if (credentialsMatch(username, password, expectedUsername, expectedPassword)) {
+  } else if (
+    // Both env values must be set, or `credentialsMatch` would accept empty input
+    // against empty expectations and hand out an admin session.
+    expectedUsername !== "" &&
+    expectedPassword !== "" &&
+    !(await hasAnyUser().catch(() => true)) &&
+    credentialsMatch(username, password, expectedUsername, expectedPassword)
+  ) {
+    // Bootstrap path: no users exist yet, so this login creates the first admin session.
+    // On failure to read the table we assume users exist and refuse, failing closed.
     subject = normalizeUsername(expectedUsername);
     role = "admin";
-    // The bootstrap admin inherits the plans created before multi-user support.
-    // No-op once they own an account of their own.
-    if (!(await hasAnyUser().catch(() => false))) {
-      await adoptLegacyAccount(subject).catch(() => undefined);
-    }
+    await adoptLegacyAccount(subject).catch(() => undefined);
   } else {
     return NextResponse.json({ ok: false, error: "invalid_credentials" }, { status: 401 });
   }
