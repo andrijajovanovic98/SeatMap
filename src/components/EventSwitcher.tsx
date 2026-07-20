@@ -27,7 +27,12 @@ export function EventSwitcher() {
   const sorted = [...events].sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
 
   return (
-    <div ref={rootRef} className="relative min-w-0 flex-1 sm:max-w-xs">
+    // basis-0 lets the name shrink as far as the row needs rather than claiming a
+    // fixed slice, which on a 320-360px header was enough to wrap the buttons onto a
+    // second row. min-w keeps it readable instead of collapsing to ~20px.
+    // max-w on the narrowest screens: flex-1 alone still grew the name to ~180px of a
+    // 320px header, leaving the action group no room and wrapping it to a second row.
+    <div ref={rootRef} className="relative min-w-[3.5rem] max-w-[7rem] flex-1 basis-0 sm:max-w-xs">
       <div className="flex items-center gap-1">
         <input
           value={plan.eventName}

@@ -11,8 +11,8 @@ import { useComments } from "@/context/CommentContext";
 import { usePlan } from "@/context/PlanContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { clearLocalAccount, saveEvent } from "@/lib/storage";
-import { FileDown, LayoutGrid, LogOut, MessageSquare, Menu, Plus, Printer, Save, Settings, Share2, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { FileDown, LayoutGrid, LogOut, MessageSquare, Menu, MoreVertical, Plus, Printer, Save, Settings, Share2, Users, UsersRound } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 export function AppHeader({
   onOpenGuestList,
@@ -74,9 +74,11 @@ export function AppHeader({
         <Menu className="h-5 w-5" />
       </button>
 
+      {/* The wordmark costs ~100px of a 320px-wide header; the mark alone still
+          identifies the app, so the text only appears once there is room for it. */}
       <div className="flex items-center gap-1.5 text-indigo-600">
         <LayoutGrid className="h-5 w-5" />
-        <span className="text-lg font-bold tracking-tight">{t("app.name")}</span>
+        <span className="hidden text-lg font-bold tracking-tight sm:inline">{t("app.name")}</span>
       </div>
 
       <EventSwitcher />
@@ -88,8 +90,11 @@ export function AppHeader({
       <SaveIndicator status={saveStatus} syncStatus={syncStatus} />
 
       <div className="ml-auto flex items-center gap-1.5">
+        {/* Thirteen controls cannot fit a phone's width, so below lg: only Guests,
+            Share and Comments stay out here and the rest move into the ⋯ menu.
+            Everything is still rendered at lg: and up, unchanged. */}
         <div
-          className="flex items-center rounded-lg border border-gray-200 p-0.5 text-xs font-medium"
+          className="hidden items-center rounded-lg border border-gray-200 p-0.5 text-xs font-medium lg:flex"
           role="group"
           aria-label={t("header.language")}
         >
@@ -112,20 +117,23 @@ export function AppHeader({
         </div>
         <button
           onClick={onOpenGuestList}
-          className="rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 lg:hidden"
+          className="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 sm:flex lg:hidden"
+          aria-label={t("header.guests")}
+          title={t("header.guests")}
         >
-          {t("header.guests")}
+          <UsersRound className="h-4 w-4" />
+          <span className="hidden sm:inline">{t("header.guests")}</span>
         </button>
         <button
           onClick={() => createEvent(t("events.newEvent.defaultName"))}
-          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100"
+          className="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 lg:flex"
         >
           <Plus className="h-4 w-4" />
           <span className="hidden sm:inline">{t("events.newEvent")}</span>
         </button>
         <button
           onClick={() => setShowExportImport(true)}
-          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100"
+          className="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 lg:flex"
         >
           <FileDown className="h-4 w-4" />
           <span className="hidden sm:inline">{t("header.exportImport")}</span>
@@ -133,13 +141,15 @@ export function AppHeader({
         <button
           onClick={() => setShowShare(true)}
           className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100"
+          aria-label={t("header.share")}
+          title={t("header.share")}
         >
           <Share2 className="h-4 w-4" />
           <span className="hidden sm:inline">{t("header.share")}</span>
         </button>
         <button
           onClick={() => setShowSettings(true)}
-          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+          className="hidden rounded-lg p-2 text-gray-500 hover:bg-gray-100 lg:block"
           aria-label={t("header.settings")}
           title={t("header.settings")}
         >
@@ -147,14 +157,14 @@ export function AppHeader({
         </button>
         <button
           onClick={handlePrint}
-          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100"
+          className="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 lg:flex"
         >
           <Printer className="h-4 w-4" />
           <span className="hidden sm:inline">{t("header.print")}</span>
         </button>
         <button
           onClick={() => saveEvent(plan)}
-          className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
+          className="hidden items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 lg:flex"
         >
           <Save className="h-4 w-4" />
           <span className="hidden sm:inline">{t("header.save")}</span>
@@ -175,16 +185,30 @@ export function AppHeader({
         {isAdmin && (
           <a
             href="/admin"
-            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+            className="hidden rounded-lg p-2 text-gray-500 hover:bg-gray-100 lg:block"
             aria-label={t("header.users")}
             title={t("header.users")}
           >
             <Users className="h-4 w-4" />
           </a>
         )}
+
+        <HeaderOverflowMenu
+          isAdmin={isAdmin}
+          language={language}
+          setLanguage={setLanguage}
+          onOpenGuestList={onOpenGuestList}
+          onNewEvent={() => createEvent(t("events.newEvent.defaultName"))}
+          onExportImport={() => setShowExportImport(true)}
+          onSettings={() => setShowSettings(true)}
+          onPrint={handlePrint}
+          onSave={() => saveEvent(plan)}
+          onLogout={handleLogout}
+        />
+
         <button
           onClick={handleLogout}
-          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+          className="hidden rounded-lg p-2 text-gray-500 hover:bg-gray-100 lg:block"
           aria-label={t("header.logout")}
           title={t("header.logout")}
         >
@@ -197,5 +221,142 @@ export function AppHeader({
       {showShare && <ShareDialog onClose={() => setShowShare(false)} />}
       {showComments && <CommentsDialog onClose={() => setShowComments(false)} />}
     </header>
+  );
+}
+
+/**
+ * The actions that do not fit a phone header, behind a ⋯ button. Hidden at lg: and up,
+ * where every control has room to sit in the header itself.
+ */
+function HeaderOverflowMenu({
+  isAdmin,
+  language,
+  setLanguage,
+  onOpenGuestList,
+  onNewEvent,
+  onExportImport,
+  onSettings,
+  onPrint,
+  onSave,
+  onLogout,
+}: {
+  isAdmin: boolean;
+  language: string;
+  setLanguage: (lang: "hu" | "en") => void;
+  onOpenGuestList?: () => void;
+  onNewEvent: () => void;
+  onExportImport: () => void;
+  onSettings: () => void;
+  onPrint: () => void;
+  onSave: () => void;
+  onLogout: () => void;
+}) {
+  const { t } = useLanguage();
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Close on outside tap and on Escape, the two ways a user expects to dismiss a menu.
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  /** Every item closes the menu, so callers pass only their own action. */
+  const item = (icon: React.ReactNode, label: string, action: () => void) => (
+    <button
+      onClick={() => {
+        setOpen(false);
+        action();
+      }}
+      className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50"
+    >
+      <span className="text-gray-400">{icon}</span>
+      {label}
+    </button>
+  );
+
+  return (
+    <div ref={rootRef} className="relative lg:hidden">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+        aria-label={t("header.more")}
+        aria-expanded={open}
+        aria-haspopup="menu"
+      >
+        <MoreVertical className="h-5 w-5" />
+      </button>
+
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full z-50 mt-1 w-56 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-lg"
+        >
+          {/* Guests has its own header button from sm: up; on the narrowest phones
+              there is no room for it, so it lives here too. */}
+          {onOpenGuestList && (
+            <div className="sm:hidden">
+              {item(<UsersRound className="h-4 w-4" />, t("header.guests"), onOpenGuestList)}
+            </div>
+          )}
+          {item(<Plus className="h-4 w-4" />, t("events.newEvent"), onNewEvent)}
+          {item(<Save className="h-4 w-4" />, t("header.save"), onSave)}
+          {item(<FileDown className="h-4 w-4" />, t("header.exportImport"), onExportImport)}
+          {item(<Printer className="h-4 w-4" />, t("header.print"), onPrint)}
+          {item(<Settings className="h-4 w-4" />, t("header.settings"), onSettings)}
+          {isAdmin && (
+            <a
+              href="/admin"
+              onClick={() => setOpen(false)}
+              className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50"
+            >
+              <span className="text-gray-400">
+                <Users className="h-4 w-4" />
+              </span>
+              {t("header.users")}
+            </a>
+          )}
+
+          <div className="my-1 border-t border-gray-100" />
+
+          <div className="flex items-center gap-2 px-4 py-2">
+            <span className="text-sm text-gray-500">{t("header.language")}</span>
+            <div className="ml-auto flex items-center rounded-lg border border-gray-200 p-0.5 text-xs font-medium">
+              <button
+                onClick={() => setLanguage("hu")}
+                className={`rounded-md px-2.5 py-1.5 ${
+                  language === "hu" ? "bg-indigo-600 text-white" : "text-gray-500"
+                }`}
+              >
+                HU
+              </button>
+              <button
+                onClick={() => setLanguage("en")}
+                className={`rounded-md px-2.5 py-1.5 ${
+                  language === "en" ? "bg-indigo-600 text-white" : "text-gray-500"
+                }`}
+              >
+                EN
+              </button>
+            </div>
+          </div>
+
+          <div className="my-1 border-t border-gray-100" />
+
+          {item(<LogOut className="h-4 w-4" />, t("header.logout"), onLogout)}
+        </div>
+      )}
+    </div>
   );
 }

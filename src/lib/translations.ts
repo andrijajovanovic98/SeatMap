@@ -22,6 +22,7 @@ const dict = {
     "header.language": "Nyelv",
     "header.logout": "Kijelentkezés",
     "header.users": "Felhasználók",
+    "header.more": "További műveletek",
 
     "admin.title": "Felhasználók",
     "admin.subtitle": "Minden felhasználó a saját rendezvényeit látja.",
@@ -285,6 +286,7 @@ const dict = {
     "header.language": "Language",
     "header.logout": "Sign out",
     "header.users": "Users",
+    "header.more": "More actions",
 
     "admin.title": "Users",
     "admin.subtitle": "Each user sees only their own events.",
