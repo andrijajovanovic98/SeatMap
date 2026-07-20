@@ -3,7 +3,6 @@
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { GuestAttributesValue } from "@/components/GuestAttributesFields";
 import { GuestDialog } from "@/components/GuestDialog";
-import { SeatPickerDialog } from "@/components/SeatPickerDialog";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePlan } from "@/context/PlanContext";
 import { generateId } from "@/lib/id";
@@ -17,7 +16,6 @@ export function GuestList() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
   const [deletingGuest, setDeletingGuest] = useState<Guest | null>(null);
-  const [seatingGuest, setSeatingGuest] = useState<Guest | null>(null);
 
   const seatLabelByGuestId = useMemo(() => {
     const map = new Map<string, string>();
@@ -79,7 +77,6 @@ export function GuestList() {
           guests={unassigned}
           seatLabel={seatLabelByGuestId}
           onDragStart={handleGuestDragStart}
-          onSeat={setSeatingGuest}
           onEdit={setEditingGuest}
           onDelete={setDeletingGuest}
         />
@@ -88,7 +85,6 @@ export function GuestList() {
           guests={assigned}
           seatLabel={seatLabelByGuestId}
           onDragStart={handleGuestDragStart}
-          onSeat={setSeatingGuest}
           onEdit={setEditingGuest}
           onDelete={setDeletingGuest}
         />
@@ -102,9 +98,6 @@ export function GuestList() {
       )}
       {editingGuest && (
         <GuestDialog guest={editingGuest} onSave={handleEditGuest} onClose={() => setEditingGuest(null)} />
-      )}
-      {seatingGuest && (
-        <SeatPickerDialog guest={seatingGuest} onClose={() => setSeatingGuest(null)} />
       )}
 
       <ConfirmDialog
@@ -127,7 +120,6 @@ function GuestGroup({
   guests,
   seatLabel,
   onDragStart,
-  onSeat,
   onEdit,
   onDelete,
 }: {
@@ -135,7 +127,6 @@ function GuestGroup({
   guests: Guest[];
   seatLabel: Map<string, string>;
   onDragStart: (e: React.DragEvent, guestId: string) => void;
-  onSeat: (guest: Guest) => void;
   onEdit: (guest: Guest) => void;
   onDelete: (guest: Guest) => void;
 }) {
@@ -162,19 +153,13 @@ function GuestGroup({
             className="group flex cursor-grab items-center gap-2 rounded-lg border border-gray-100 px-2.5 py-2 text-sm hover:bg-gray-50 active:cursor-grabbing"
           >
             <UserRound className="h-4 w-4 flex-shrink-0 text-gray-400" />
-            {/* Tapping the name opens the seat picker — dragging onto the canvas is
-                mouse-only, so this is the only way to seat someone by touch. */}
-            <button
-              onClick={() => onSeat(guest)}
-              className="min-w-0 flex-1 text-left"
-              aria-label={t("seatPicker.forGuest", { name: guest.name })}
-            >
+            <div className="min-w-0 flex-1">
               <p className="truncate font-medium text-gray-800">{guest.name}</p>
               {seatLabel.get(guest.id) && (
                 <p className="truncate text-xs text-emerald-600">{seatLabel.get(guest.id)}</p>
               )}
               {guest.note && <p className="truncate text-xs text-gray-400">{guest.note}</p>}
-            </button>
+            </div>
             {/* touch-action-btn keeps these visible and thumb-sized on touch devices,
                 where group-hover never fires and they would be unreachable. */}
             <button

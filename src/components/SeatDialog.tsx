@@ -4,8 +4,8 @@ import { GuestAttributesFields, GuestAttributesValue } from "@/components/GuestA
 import { useLanguage } from "@/context/LanguageContext";
 import { usePlan } from "@/context/PlanContext";
 import { generateId } from "@/lib/id";
-import { UserRound, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { X } from "lucide-react";
+import { useState } from "react";
 
 export function SeatDialog({ seatId, onClose }: { seatId: string; onClose: () => void }) {
   const { plan, dispatch } = usePlan();
@@ -26,32 +26,6 @@ export function SeatDialog({ seatId, onClose }: { seatId: string; onClose: () =>
     childAgeId: guest?.childAgeId ?? "",
     highChair: guest?.highChair ?? false,
   });
-  const [guestQuery, setGuestQuery] = useState("");
-
-  /** Where each already-seated guest sits, so the list can say so. */
-  const seatLabelByGuestId = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const tbl of plan.tables) {
-      for (const s of tbl.seats) {
-        if (s.guestId) {
-          map.set(s.guestId, t("seat.label", { table: tbl.name, seatNumber: s.seatNumber }));
-        }
-      }
-    }
-    return map;
-  }, [plan.tables, t]);
-
-  // Unseated guests first: those are the ones usually being placed.
-  const seatableGuests = useMemo(() => {
-    const unseated = plan.guests.filter((g) => !seatLabelByGuestId.has(g.id));
-    const seated = plan.guests.filter((g) => seatLabelByGuestId.has(g.id));
-    return [...unseated, ...seated];
-  }, [plan.guests, seatLabelByGuestId]);
-
-  const filteredGuests = useMemo(() => {
-    const q = guestQuery.trim().toLowerCase();
-    return q ? seatableGuests.filter((g) => g.name.toLowerCase().includes(q)) : seatableGuests;
-  }, [seatableGuests, guestQuery]);
 
   if (!table || !seat) return null;
 
@@ -99,55 +73,10 @@ export function SeatDialog({ seatId, onClose }: { seatId: string; onClose: () =>
         </div>
 
         <div className="mt-4 flex flex-col gap-3 overflow-y-auto">
-          {/* Seating an existing guest was only possible by dragging them from the
-              guest list, which never works on a touchscreen. On an empty seat the
-              existing guests are offered here instead. */}
-          {!guest && seatableGuests.length > 0 && (
-            <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-gray-500">{t("guestPicker.title")}</span>
-              {seatableGuests.length > 6 && (
-                <input
-                  value={guestQuery}
-                  onChange={(e) => setGuestQuery(e.target.value)}
-                  placeholder={t("guestPicker.search")}
-                  className="input"
-                  aria-label={t("guestPicker.search")}
-                />
-              )}
-              <div className="max-h-44 overflow-y-auto rounded-lg border border-gray-200">
-                {filteredGuests.length === 0 ? (
-                  <p className="px-3 py-3 text-center text-xs text-gray-400">{t("guestPicker.noMatch")}</p>
-                ) : (
-                  <ul className="divide-y divide-gray-100">
-                    {filteredGuests.map((g) => (
-                      <li key={g.id}>
-                        <button
-                          onClick={() => {
-                            dispatch({ type: "ASSIGN_GUEST_TO_SEAT", guestId: g.id, seatId: seat.id });
-                            onClose();
-                          }}
-                          className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-gray-700 hover:bg-indigo-50"
-                        >
-                          <UserRound className="h-4 w-4 flex-shrink-0 text-gray-400" />
-                          <span className="min-w-0 flex-1 truncate">{g.name}</span>
-                          {seatLabelByGuestId.get(g.id) && (
-                            <span className="flex-shrink-0 text-xs text-gray-400">
-                              {t("guestPicker.alreadySeated", { seat: seatLabelByGuestId.get(g.id)! })}
-                            </span>
-                          )}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <span className="mt-1 text-xs font-medium text-gray-500">{t("guestPicker.newGuest")}</span>
-            </div>
-          )}
-
           <label className="flex flex-col gap-1 text-xs font-medium text-gray-500">
             {t("seatDialog.nameLabel")}
             <input
+              autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t("seatDialog.namePlaceholder")}
