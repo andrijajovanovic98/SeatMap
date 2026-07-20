@@ -67,12 +67,13 @@ export function EventSwitcher() {
                     </span>
                     <span className="truncate">{ev.eventName || t("events.untitled")}</span>
                   </button>
+                  {/* Hover-gated, so unreachable on touch without touch-action-btn. */}
                   <button
                     onClick={() => setDeleting(ev)}
-                    className="mr-1 flex-shrink-0 rounded p-1.5 text-gray-400 opacity-0 hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
+                    className="touch-action-btn mr-1 flex flex-shrink-0 items-center justify-center rounded p-1.5 text-gray-400 opacity-0 hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
                     aria-label={t("events.deleteAria")}
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 </li>
               );

@@ -17,8 +17,9 @@ import {
 export type PlanAction =
   | { type: "SET_PLAN"; plan: SeatingPlan }
   | { type: "SET_EVENT_NAME"; name: string }
-  | { type: "ADD_TABLE"; shape: TableShape; defaultName?: string }
-  | { type: "ADD_FLOOR_ELEMENT"; elementType: FloorElementType }
+  // `id` is optional so the caller can select the new item straight after adding it.
+  | { type: "ADD_TABLE"; id?: string; shape: TableShape; defaultName?: string }
+  | { type: "ADD_FLOOR_ELEMENT"; id?: string; elementType: FloorElementType }
   | { type: "MOVE_ITEM"; id: string; x: number; y: number }
   | { type: "NUDGE_ITEM"; id: string; dx: number; dy: number }
   | { type: "RESIZE_ITEM"; id: string; width: number; height: number }
@@ -160,7 +161,7 @@ export function planReducer(plan: SeatingPlan, action: PlanAction): SeatingPlan 
         plan.room
       );
       const table: TableItem = {
-        id: generateId("table"),
+        id: action.id ?? generateId("table"),
         kind: "table",
         name: action.defaultName ?? `Table ${plan.tables.length + 1}`,
         shape,
@@ -185,7 +186,7 @@ export function planReducer(plan: SeatingPlan, action: PlanAction): SeatingPlan 
         plan.room
       );
       const element: FloorElementItem = {
-        id: generateId("floor"),
+        id: action.id ?? generateId("floor"),
         kind: "floorElement",
         type,
         name: "",

@@ -4,7 +4,7 @@ import { SeatElement, SeatTooltipContent } from "@/components/SeatElement";
 import { computeSeatPositions } from "@/lib/seatLayout";
 import { Guest, TableItem } from "@/types/seating";
 import { AlertTriangle, Armchair, Baby, MilkOff, Salad, Sprout, WheatOff } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function GuestNoticeIcons({ guest }: { guest: Guest }) {
   return (
@@ -25,7 +25,6 @@ export function TableElement({
   guestsById,
   childAgeLabelById,
   selected = false,
-  onSelect,
   onPointerDownDrag,
   onSeatClick,
   onDropGuestOnSeat,
@@ -34,13 +33,13 @@ export function TableElement({
   guestsById: Map<string, Guest>;
   childAgeLabelById: Map<string, string>;
   selected?: boolean;
-  onSelect?: () => void;
   onPointerDownDrag?: (e: React.PointerEvent) => void;
   onSeatClick?: (seatId: string) => void;
   onDropGuestOnSeat?: (seatId: string, guestId: string) => void;
 }) {
   const [tableTooltipPos, setTableTooltipPos] = useState<{ x: number; y: number } | null>(null);
   const [hoveredSeatId, setHoveredSeatId] = useState<string | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const seatPositions = computeSeatPositions(table.shape, table.width, table.height, table.seats);
   const isCircle = table.shape === "circle";
 
@@ -56,8 +55,29 @@ export function TableElement({
   // relative to siblings, so it must live on the table's own container).
   const tooltipActive = tableTooltipPos !== null || hoveredSeatId !== null;
 
+  // Touch has no hover, so onMouseLeave may never fire and a tooltip opened by tapping
+  // would stick. Dismiss on the next pointerdown outside this table, and on
+  // pointercancel, which is what a gesture stolen by the browser produces.
+  useEffect(() => {
+    if (!tooltipActive) return;
+    const dismiss = (e: Event) => {
+      const target = e.target as Node | null;
+      if (e.type === "pointercancel" || !target || !rootRef.current?.contains(target)) {
+        setTableTooltipPos(null);
+        setHoveredSeatId(null);
+      }
+    };
+    document.addEventListener("pointerdown", dismiss);
+    document.addEventListener("pointercancel", dismiss);
+    return () => {
+      document.removeEventListener("pointerdown", dismiss);
+      document.removeEventListener("pointercancel", dismiss);
+    };
+  }, [tooltipActive]);
+
   return (
     <div
+      ref={rootRef}
       className={`absolute ${tooltipActive ? "z-40" : ""}`}
       style={{
         left: table.x,
@@ -69,7 +89,12 @@ export function TableElement({
     >
       <div
         onPointerDown={(e) => {
-          onSelect?.();
+          // Touch/pen get the tooltip here, since they never fire mouseenter. Mouse is
+          // left to the hover handlers below so desktop behaviour is unchanged.
+          if (e.pointerType !== "mouse") {
+            const rect = e.currentTarget.getBoundingClientRect();
+            setTableTooltipPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+          }
           onPointerDownDrag?.(e);
         }}
         onMouseEnter={(e) => {

@@ -118,6 +118,11 @@ export function SeatElement({
         e.stopPropagation();
         onClick?.();
       }}
+      // Touch never fires mouseenter, so without this a tap on a seat shows nothing —
+      // which is all a guest can do on the read-only share page.
+      onPointerDown={(e) => {
+        if (e.pointerType !== "mouse") onHoverChange?.(true);
+      }}
       onMouseEnter={() => onHoverChange?.(true)}
       onMouseLeave={() => onHoverChange?.(false)}
       onDragOver={handleDragOver}

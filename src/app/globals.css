@@ -22,6 +22,50 @@ body {
   }
 }
 
+/* ===== Touch / coarse-pointer behaviour ===== */
+
+html {
+  /* The app shell is fixed and never scrolls, so rubber-band bounce only reveals
+     blank space and makes drags near the edge feel broken. */
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  /* Tapping a seat or table otherwise flashes the default grey/blue box. */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The canvas implements its own pan/pinch. Without this the browser claims the
+   gesture for native scrolling and fires pointercancel mid-drag, which is why
+   dragging a table by finger did not work at all. */
+[data-canvas-surface] {
+  touch-action: none;
+}
+
+@media (pointer: coarse) {
+  /* iOS auto-zooms into any focused field whose font is under 16px, and never
+     zooms back out. Scoped to coarse pointers so the desktop keeps its density. */
+  .input {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  /* Row actions revealed by group-hover are unreachable where there is no hover.
+     Also brings them up to a thumb-sized target. */
+  .touch-action-btn {
+    opacity: 1 !important;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Keeps content clear of the iOS home indicator; resolves to the plain value
+   on devices without an inset (requires viewportFit: "cover"). */
+.safe-bottom {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
 @media print {
   .no-print {
     display: none !important;

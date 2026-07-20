@@ -3,22 +3,20 @@
 import { FloorElementView } from "@/components/FloorElementView";
 import { TableElement } from "@/components/TableElement";
 import { useLanguage } from "@/context/LanguageContext";
+import { useCanvasGestures } from "@/lib/useCanvasGestures";
 import { Guest, SeatingPlan } from "@/types/seating";
 import { Maximize, Minus, Plus } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 
-const MIN_ZOOM = 0.25;
-const MAX_ZOOM = 2.5;
-const ZOOM_STEP = 0.15;
-
 /**
  * A read-only variant of FloorCanvas for the public share page: same zoom / pan /
- * fit-to-room and the same hover tooltips, but no editing (no drag, select, add, or
+ * fit-to-room and the same tooltips, but no editing (no drag, select, add, or
  * guest assignment) and no PlanProvider dependency — the plan comes in as a prop.
  */
 export function ReadOnlyCanvas({ plan }: { plan: SeatingPlan }) {
   const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
+  const roomRef = useRef<HTMLDivElement>(null);
   const [fitScale, setFitScale] = useState(1);
   const [zoom, setZoom] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
@@ -50,96 +48,92 @@ export function ReadOnlyCanvas({ plan }: { plan: SeatingPlan }) {
   const containerRefCallback = useCallback(
     (node: HTMLDivElement | null) => {
       containerRef.current = node;
-      if (node) {
-        computeScale();
-        const observer = new ResizeObserver(() => computeScale());
-        observer.observe(node);
-      }
+      if (!node) return;
+      computeScale();
+      const observer = new ResizeObserver(() => computeScale());
+      observer.observe(node);
+      return () => observer.disconnect();
     },
     [computeScale]
   );
 
-  const zoomIn = () => setZoom((z) => Math.min(MAX_ZOOM, Number((z + ZOOM_STEP).toFixed(2))));
-  const zoomOut = () => setZoom((z) => Math.max(MIN_ZOOM, Number((z - ZOOM_STEP).toFixed(2))));
   const zoomReset = () => {
     setZoom(1);
     setPanOffset({ x: 0, y: 0 });
   };
 
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    if (e.deltaY < 0) zoomIn();
-    else zoomOut();
-  };
-
-  const handleBackgroundPointerDown = (e: React.PointerEvent) => {
-    const target = e.target as HTMLElement;
-    if (!target.dataset.pannable || e.button !== 0) return;
-    e.preventDefault();
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const startOffset = panOffset;
-    setIsPanning(true);
-
-    const handleMove = (moveEvent: PointerEvent) => {
-      setPanOffset({
-        x: startOffset.x + (moveEvent.clientX - startX),
-        y: startOffset.y + (moveEvent.clientY - startY),
-      });
-    };
-    const handleUp = () => {
-      setIsPanning(false);
-      window.removeEventListener("pointermove", handleMove);
-      window.removeEventListener("pointerup", handleUp);
-    };
-    window.addEventListener("pointermove", handleMove);
-    window.addEventListener("pointerup", handleUp);
-  };
+  // No getItemOrigin/onMoveItem: with editing off, every one-finger gesture is a pan.
+  const gestures = useCanvasGestures({
+    roomRef,
+    containerRef,
+    zoom,
+    panOffset,
+    scale,
+    setZoom,
+    setPanOffset,
+  });
 
   return (
     <div
       ref={containerRefCallback}
       data-pannable
+      data-canvas-surface
       className={`relative flex h-full w-full items-center justify-center overflow-hidden bg-gray-100 p-6 ${
         isPanning ? "cursor-grabbing" : "cursor-grab"
       }`}
-      onWheel={handleWheel}
-      onPointerDown={handleBackgroundPointerDown}
+      onPointerDown={(e) => {
+        setIsPanning(true);
+        gestures.onPointerDown(e);
+      }}
+      onPointerMove={gestures.onPointerMove}
+      onPointerUp={(e) => {
+        setIsPanning(false);
+        gestures.onPointerUp(e);
+      }}
+      onPointerCancel={(e) => {
+        setIsPanning(false);
+        gestures.onPointerUp(e);
+      }}
+      onLostPointerCapture={(e) => {
+        setIsPanning(false);
+        gestures.onPointerUp(e);
+      }}
     >
-      <div className="absolute bottom-4 right-4 z-10 flex items-center gap-0.5 rounded-lg bg-white p-1 shadow-md ring-1 ring-gray-200">
+      {/* no-print: these controls are chrome, not part of the plan being printed. */}
+      <div className="no-print absolute bottom-4 right-4 z-10 flex items-center gap-0.5 rounded-lg bg-white p-1 shadow-md ring-1 ring-gray-200">
         <button
-          onClick={zoomOut}
-          className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+          onClick={() => gestures.zoomByStep(-1)}
+          className="rounded-md p-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
           aria-label={t("canvas.zoomOutAria")}
         >
-          <Minus className="h-4 w-4" />
+          <Minus className="h-5 w-5" />
         </button>
         <button
           onClick={zoomReset}
-          className="min-w-[3.5rem] rounded-md px-1.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100"
+          className="min-w-[3.5rem] rounded-md px-1.5 py-2 text-xs font-medium text-gray-600 hover:bg-gray-100"
           aria-label={t("canvas.zoomResetAria")}
         >
           {Math.round(zoom * 100)}%
         </button>
         <button
-          onClick={zoomIn}
-          className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+          onClick={() => gestures.zoomByStep(1)}
+          className="rounded-md p-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
           aria-label={t("canvas.zoomInAria")}
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-5 w-5" />
         </button>
         <button
           onClick={zoomReset}
-          className="ml-0.5 rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+          className="ml-0.5 rounded-md p-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
           aria-label={t("canvas.fitAria")}
         >
-          <Maximize className="h-4 w-4" />
+          <Maximize className="h-5 w-5" />
         </button>
       </div>
 
       <div
+        ref={roomRef}
         data-pannable
-        onPointerDown={handleBackgroundPointerDown}
         className="relative flex-shrink-0 rounded-xl bg-white shadow-inner ring-1 ring-gray-200"
         style={{
           width: plan.room.width * scale,

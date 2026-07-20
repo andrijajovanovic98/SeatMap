@@ -6,12 +6,10 @@ import { FLOOR_ELEMENT_LABEL_KEYS, FloorElementItem } from "@/types/seating";
 export function FloorElementView({
   element,
   selected = false,
-  onSelect,
   onPointerDownDrag,
 }: {
   element: FloorElementItem;
   selected?: boolean;
-  onSelect?: () => void;
   onPointerDownDrag?: (e: React.PointerEvent) => void;
 }) {
   const { t } = useLanguage();
@@ -20,10 +18,10 @@ export function FloorElementView({
 
   return (
     <div
-      onPointerDown={(e) => {
-        onSelect?.();
-        onPointerDownDrag?.(e);
-      }}
+      // Selection is owned by the gesture hook, which fires it on tap or once a drag
+      // passes its threshold. Selecting here on pointerdown made the mobile properties
+      // sheet spring open over the canvas the moment a finger landed on an element.
+      onPointerDown={onPointerDownDrag}
       className={`absolute flex items-center justify-center rounded-lg border-2 border-dashed shadow-sm ${
         interactive ? "cursor-grab active:cursor-grabbing" : "cursor-default"
       } ${selected ? "border-indigo-500 ring-2 ring-indigo-300" : "border-gray-400"}`}

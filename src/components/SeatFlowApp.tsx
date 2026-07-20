@@ -59,7 +59,7 @@ export function SeatFlowApp() {
   }, [selectedId, dispatch, setSelectedId, undo, t]);
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-dvh flex-col">
       <AppHeader onOpenGuestList={() => setShowGuestDrawer(true)} onOpenToolbar={() => setShowToolbarDrawer(true)} />
 
       <div className="no-print flex flex-1 overflow-hidden">
@@ -152,11 +152,11 @@ function MobileDrawer({
       <div className="flex h-full w-72 max-w-[85vw] flex-col bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-gray-100 p-3">
           <h2 className="text-sm font-semibold text-gray-700">{title}</h2>
-          <button onClick={onClose} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100">
+          <button onClick={onClose} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100">
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto">{children}</div>
+        <div className="safe-bottom flex-1 overflow-y-auto">{children}</div>
       </div>
     </div>
   );
@@ -166,10 +166,12 @@ function MobilePropertiesSheet({ onClose }: { onClose: () => void }) {
   const { t } = useLanguage();
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
-      <div className="max-h-[70vh] overflow-y-auto rounded-t-2xl border-t border-gray-200 bg-white shadow-2xl">
+      {/* dvh so the sheet is measured against the visible viewport, not the larger
+          one hidden behind the mobile URL bar. */}
+      <div className="safe-bottom max-h-[70dvh] overflow-y-auto rounded-t-2xl border-t border-gray-200 bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b border-gray-100 p-3">
           <h2 className="text-sm font-semibold text-gray-700">{t("properties.heading")}</h2>
-          <button onClick={onClose} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100">
+          <button onClick={onClose} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100">
             <X className="h-5 w-5" />
           </button>
         </div>

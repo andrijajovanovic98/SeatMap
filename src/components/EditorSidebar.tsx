@@ -2,6 +2,7 @@
 
 import { useLanguage } from "@/context/LanguageContext";
 import { usePlan } from "@/context/PlanContext";
+import { generateId } from "@/lib/id";
 import { TranslationKey } from "@/lib/translations";
 import { FloorElementType, TableShape } from "@/types/seating";
 import {
@@ -57,16 +58,21 @@ const TOOLS: ToolItem[] = [
 ];
 
 export function EditorSidebar({ onItemAdded }: { onItemAdded?: () => void }) {
-  const { plan, dispatch } = usePlan();
+  const { plan, dispatch, setSelectedId } = usePlan();
   const { t } = useLanguage();
 
   const handleAdd = (tool: ToolItem) => {
+    // New items land at room centre, which on a phone is often off-screen — and the
+    // drawer closes straight after. Selecting the item makes it obvious something
+    // happened: it gets a highlight, and the properties panel opens on it.
+    const id = generateId(tool.kind === "table" ? "table" : "floor");
     if (tool.kind === "table") {
       const defaultName = t("table.defaultName", { number: plan.tables.length + 1 });
-      dispatch({ type: "ADD_TABLE", shape: tool.shape, defaultName });
+      dispatch({ type: "ADD_TABLE", id, shape: tool.shape, defaultName });
     } else {
-      dispatch({ type: "ADD_FLOOR_ELEMENT", elementType: tool.elementType });
+      dispatch({ type: "ADD_FLOOR_ELEMENT", id, elementType: tool.elementType });
     }
+    setSelectedId(id);
     onItemAdded?.();
   };
 
