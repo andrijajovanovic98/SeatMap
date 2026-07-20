@@ -18,7 +18,7 @@ export function SaveIndicator({ status, syncStatus }: { status: SaveStatus; sync
     );
   }
 
-  // Below lg: only the icon shows. The label is reassurance, not information, and its
+  // Below lg: only the icon shows — the label is reassurance, not information, and its
   // width is what pushed the phone header onto a second row. Offline above keeps its
   // text, because that one is a warning the user needs to read.
   if (status === "saving" || syncStatus === "syncing") {
@@ -32,8 +32,11 @@ export function SaveIndicator({ status, syncStatus }: { status: SaveStatus; sync
 
   if (status === "idle") return null;
 
+  // "Saved" is the steady state, so on a phone it would be a permanent tick taking up
+  // header room to say nothing changed. Hidden below lg:; the states that matter
+  // (syncing, offline) still show.
   return (
-    <span className="flex items-center gap-1.5 text-xs text-emerald-600" title={t("sync.synced")}>
+    <span className="hidden items-center gap-1.5 text-xs text-emerald-600 lg:flex" title={t("sync.synced")}>
       <Check className="h-3.5 w-3.5" />
       <span className="hidden lg:inline">{t("sync.synced")}</span>
     </span>
