@@ -75,6 +75,8 @@ export function useCanvasGestures({
 }: CanvasGestureOptions) {
   const pointers = useRef(new Map<number, Point>());
   const mode = useRef<"idle" | "pan" | "drag" | "pinch">("idle");
+  /** Pointers the container has taken capture of, so it is requested at most once each. */
+  const captured = useRef(new Set<number>());
   /** The previous tap, for double-tap detection. */
   const lastTap = useRef<{ id: string; at: number; x: number; y: number } | null>(null);
 
@@ -157,11 +159,10 @@ export function useCanvasGestures({
       if (pointers.current.has(e.pointerId)) return;
 
       pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      // Capture on the container, never on the pressed item: capture redirects all
-      // subsequent pointer events to the capturing element, and items only bind
-      // pointerdown — so capturing there would silently swallow every pointermove
-      // and the drag would never happen.
-      containerRef.current?.setPointerCapture(e.pointerId);
+      // Capture is deliberately NOT taken here. Capturing on pointerdown retargets the
+      // matching pointerup to the container, and a click is only synthesised when down
+      // and up share a target — so capturing this early silently killed every click on
+      // a seat. It is taken in onPointerMove instead, once a gesture actually starts.
 
       if (pointers.current.size === 2) {
         // A second finger converts whatever was running into a pinch. Pixels already
@@ -196,7 +197,22 @@ export function useCanvasGestures({
       }
       mode.current = "pan";
     },
-    [beginPinch, containerRef, getItemOrigin, onMoveItem]
+    [beginPinch, getItemOrigin, onMoveItem]
+  );
+
+  /**
+   * Takes pointer capture the first time a gesture actually moves, so events keep
+   * flowing to the container even if the pointer leaves it — without stealing the
+   * pointerup of a plain click, which is what a seat needs to open its dialog.
+   */
+  const ensureCapture = useCallback(
+    (pointerId: number) => {
+      const element = containerRef.current;
+      if (!element || captured.current.has(pointerId)) return;
+      element.setPointerCapture(pointerId);
+      captured.current.add(pointerId);
+    },
+    [containerRef]
   );
 
   const onPointerMove = useCallback(
@@ -205,6 +221,7 @@ export function useCanvasGestures({
       pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
       if (mode.current === "pinch") {
+        ensureCapture(e.pointerId);
         const pinch = pinchRef.current;
         const [a, b] = [...pointers.current.values()];
         if (!pinch || !a || !b || pinch.startDist === 0) return;
@@ -242,6 +259,9 @@ export function useCanvasGestures({
         if (!drag.moved) {
           if (Math.hypot(dx, dy) < drag.slop) return; // still a tap
           drag.moved = true;
+          // Only now is this definitely a drag rather than a click, so it is safe to
+          // capture; the item's click will no longer fire, which is what we want.
+          ensureCapture(e.pointerId);
           onDragStart?.(drag.id);
         }
         // Screen pixels to room units, so the item tracks the pointer exactly.
@@ -252,6 +272,7 @@ export function useCanvasGestures({
       if (mode.current === "pan") {
         const pan = panRef.current;
         if (!pan) return;
+        ensureCapture(e.pointerId);
         const next = {
           x: pan.origin.x + (e.clientX - pan.startX),
           y: pan.origin.y + (e.clientY - pan.startY),
@@ -260,7 +281,7 @@ export function useCanvasGestures({
         setPanOffset(next);
       }
     },
-    [onDragStart, onMoveItem, scale, setPanOffset, setZoom]
+    [ensureCapture, onDragStart, onMoveItem, scale, setPanOffset, setZoom]
   );
 
   /** Shared by pointerup, pointercancel and lostpointercapture — see the note above. */
@@ -270,6 +291,7 @@ export function useCanvasGestures({
       const wasMode = mode.current;
       const cancelled = e.type === "pointercancel";
       pointers.current.delete(e.pointerId);
+      captured.current.delete(e.pointerId);
 
       if (pointers.current.size === 0) {
         // A cancelled gesture is not a tap: the browser took the pointer away, the
