@@ -201,16 +201,26 @@ export function useCanvasGestures({
   );
 
   /**
-   * Takes pointer capture the first time a gesture actually moves, so events keep
-   * flowing to the container even if the pointer leaves it — without stealing the
-   * pointerup of a plain click, which is what a seat needs to open its dialog.
+   * Keeps events flowing to the container once a gesture is genuinely under way, even
+   * if the pointer leaves the container.
+   *
+   * Only mouse and pen need this. Touch pointers already have *implicit* capture, bound
+   * by the browser to whatever element received the pointerdown, and those events bubble
+   * up to the container anyway. Calling setPointerCapture for a touch pointer therefore
+   * does not add reach — it transfers capture away from that element, which fires
+   * lostpointercapture, which the canvases treat as the end of the gesture. That froze
+   * every finger drag a few pixels in.
+   *
+   * Deferring to the first move (rather than pointerdown) is what keeps a plain click
+   * intact, so a seat still opens its dialog.
    */
   const ensureCapture = useCallback(
-    (pointerId: number) => {
+    (e: React.PointerEvent) => {
+      if (e.pointerType === "touch") return;
       const element = containerRef.current;
-      if (!element || captured.current.has(pointerId)) return;
-      element.setPointerCapture(pointerId);
-      captured.current.add(pointerId);
+      if (!element || captured.current.has(e.pointerId)) return;
+      element.setPointerCapture(e.pointerId);
+      captured.current.add(e.pointerId);
     },
     [containerRef]
   );
@@ -221,7 +231,7 @@ export function useCanvasGestures({
       pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
       if (mode.current === "pinch") {
-        ensureCapture(e.pointerId);
+        ensureCapture(e);
         const pinch = pinchRef.current;
         const [a, b] = [...pointers.current.values()];
         if (!pinch || !a || !b || pinch.startDist === 0) return;
@@ -261,7 +271,7 @@ export function useCanvasGestures({
           drag.moved = true;
           // Only now is this definitely a drag rather than a click, so it is safe to
           // capture; the item's click will no longer fire, which is what we want.
-          ensureCapture(e.pointerId);
+          ensureCapture(e);
           onDragStart?.(drag.id);
         }
         // Screen pixels to room units, so the item tracks the pointer exactly.
@@ -272,7 +282,7 @@ export function useCanvasGestures({
       if (mode.current === "pan") {
         const pan = panRef.current;
         if (!pan) return;
-        ensureCapture(e.pointerId);
+        ensureCapture(e);
         const next = {
           x: pan.origin.x + (e.clientX - pan.startX),
           y: pan.origin.y + (e.clientY - pan.startY),
